@@ -1,0 +1,253 @@
+#ifndef PLAYER_ZS
+#define PLAYER_ZS
+
+UINT32 playerBodyWest[14] = {
+                             0x38000,
+                             0x28000,
+                             0x28000,
+                             0x38000,
+                             0x10000,
+                             0x38000,
+                             0x7c000,
+                             0xc6000,
+                             0xffe000,
+                             0x1ce000,
+                             0x44000,
+                             0x44000,
+                             0x7c000,
+                             0x28000
+                             };
+
+UINT32 playerBodyEast[14] = {
+                              0x38000,
+                              0x28000,
+                              0x28000,
+                              0x38000,
+                              0x10000,
+                              0x38000,
+                              0x7c000,
+                              0xc6000,
+                              0xffe00,
+                              0xe7000,
+                              0x44000,
+                              0x44000,
+                              0x7c000,
+                              0x28000
+};
+
+UINT32 playerBodySouth[14] = {
+                             0x38000,
+                             0x28000,
+                             0x28000,
+                             0x38000,
+                             0x10000,
+                             0x38000,
+                             0x7c000,
+                             0xc6000,
+                             0xc6000,
+                             0xfe000,
+                             0x54000,
+                             0x44000,
+                             0x7c000,
+                             0x28000
+};
+
+UINT32 playerBodyNorth[32] = {
+                           0x38000,
+                           0x28000,
+                           0x28000,
+                           0x38000,
+                           0x10000,
+                           0x38000,
+                           0x7c000,
+                           0xc6000,
+                           0xc6000,
+                           0x44000,
+                           0x44000,
+                           0x44000,
+                           0x7c000,
+                           0x28000
+};
+
+UINT32 playerBodyNorthWest[14] = {
+                               0x38000,
+                               0x28000,
+                               0x428000,
+                               0x238000,
+                               0x110000,
+                               0xf8000,
+                               0xfc000,
+                               0xc6000,
+                               0x46000,
+                               0x44000,
+                               0x44000,
+                               0x44000,
+                               0x7c000,
+                               0x28000
+};
+
+UINT32 playerBodyNorthEast[14] = {
+                                0x38000,
+                                0x28000,
+                                0x28400,
+                                0x38800,
+                                0x11000,
+                                0x3e000,
+                                0x7e000,
+                                0xc6000,
+                                0xc4000,
+                                0x44000,
+                                0x44000,
+                                0x44000,
+                                0x7c000,
+                                0x28000
+};
+
+UINT32 playerBodySouthEast[14] = {
+                                  0x38000,
+                                  0x28000,
+                                  0x28000,
+                                  0x38000,
+                                  0x10000,
+                                  0x38000,
+                                  0x7c000,
+                                  0xc6000,
+                                  0xc6000,
+                                  0xf6000,
+                                  0x4c000,
+                                  0x44000,
+                                  0x7e000,
+                                  0x29000
+};
+
+UINT32 playerBodySouthWest[14] = {
+                                 0x38000,
+                                 0x28000,
+                                 0x28000,
+                                 0x38000,
+                                 0x10000,
+                                 0x38000,
+                                 0x7c000,
+                                 0xc6000,
+                                 0xc6000,
+                                 0xde000,
+                                 0x64000,
+                                 0x44000,
+                                 0xfc000,
+                                 0x128000
+};
+UINT32 playerEastStepOne[5] = {
+                                0x2c000,
+                                0x24000,
+                                0x24000,
+                                0x26000,
+                                0x30000
+};UINT32 playerEastStepStop[5] = {
+                                  0x28000,
+                                  0x28000,
+                                  0x28000,
+                                  0x28000,
+                                  0x3c000
+};UINT32 playerEastStepTwo[5] = {
+                                    0x38000,
+                                    0x18000,
+                                    0x18000,
+                                    0x18000,
+                                    0xc000
+};UINT32 playerWestStepOne[5] = {
+                                 0x68000,
+                                 0x48000,
+                                 0x48000,
+                                 0xc8000,
+                                 0x18000
+};UINT32 playerWestStepStop[5] = {
+                                 0x28000,
+                                 0x28000,
+                                 0x28000,
+                                 0x28000,
+                                 0x78000
+};UINT32 playerWestStepTwo[5] = {
+                                   0x38000,
+                                   0x30000,
+                                   0x30000,
+                                   0x30000,
+                                   0x60000
+};
+
+UINT32 playerNorthStepOne[5] = {
+                             0x28000,
+                             0x28000,
+                             0x8000,
+                             0x8000
+};
+
+UINT32 playerNorthStepStop[5] = {
+                             0x28000,
+                             0x28000,
+                             0x28000,
+                             0x28000,
+                             0x28000
+};
+
+UINT32 playerNorthStepTwo[5] = {
+                               0x28000,
+                               0x28000,
+                               0x28000,
+                               0x20000,
+                               0x20000
+};
+
+UINT32 *playerBody[8] = {
+                         playerBodyNorth,
+                         playerBodyNorthWest,
+                         playerBodyWest,
+                         playerBodySouthWest,
+                         playerBodySouth,
+                         playerBodySouthEast,
+                         playerBodyEast,
+                         playerBodyNorthEast
+};
+
+UINT32 *playerStep[4][3] = {
+                            {
+                             playerWestStepOne,
+                             playerWestStepStop,
+                             playerWestStepTwo
+                            },
+                            {
+                            playerNorthStepOne,
+                            playerNorthStepStop,
+                            playerNorthStepTwo
+                            },
+                            {
+                            playerEastStepOne,
+                            playerEastStepStop,
+                            playerEastStepTwo
+                            },
+                            {
+                            playerNorthStepOne,
+                            playerNorthStepStop,
+                            playerNorthStepTwo
+                            }
+};
+
+UINT stepOne = 0;
+UINT stepStop = 1;
+UINT stepTwo = 2;
+
+UINT moveWest = 0;
+UINT moveNorth = 1;
+UINT moveEast = 2;
+UINT moveSouth = 3;
+
+UINT lookNorth = 0;
+UINT lookNorthWest = 1;
+UINT lookWest = 2;
+UINT lookSouthWest = 3;
+UINT lookSouth = 4;
+UINT lookSouthEast = 5;
+UINT lookEast = 6;
+UINT lookNorthEast = 7;
+
+
+#endif

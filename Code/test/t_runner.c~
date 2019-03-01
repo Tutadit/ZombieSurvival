@@ -1,0 +1,12 @@
+#include "t_runner.h"
+#include "t_raster.c"
+#include "t_player.c"
+
+int main() {
+
+    UINT32 *base = Physbase();
+    test_raster(base);
+    test_player(base);
+
+	return 0;
+}

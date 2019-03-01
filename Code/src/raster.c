@@ -1,119 +1,6 @@
-#include <stdio.h>
-#include <linea.h>
-#include <osbind.h>
 #include <stdlib.h>
-
-typedef unsigned char UINT8;
-typedef unsigned int UINT16;
-typedef unsigned long UINT32;
-typedef unsigned int UINT;
-
-typedef unsigned int bool;
-#define true 1
-#define false 0
-
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 400
-
-#define B8_BITS 8
-#define B8_PER_LINE 80
-#define B8_DIVIDE_SHIFT 3
-#define B8_MODULUS_MASK 0x0F
-
-#define B16_BITS 16
-#define B16_PER_LINE 40
-#define B16_DIVIDE_SHIFT 4
-#define B16_MODULUS_MASK 0x000F
-
-#define B32_BITS 32
-#define B32_PER_LINE 20
-#define B32_DIVIDE_SHIFT 5
-#define B32_MODULUS_MASK 0x0000000F
-
-void plot_bitmap_8(UINT8 *base, int x, int y, const UINT8 *bitmap, UINT height);
-void plot_bitmap_16(UINT16 *base, int x, int y, const UINT16 *bitmap, UINT height);
-void plot_bitmap_32(UINT32 *base, int x, int y, const UINT32 *bitmap, UINT height);
-bool within_bounds(UINT base, UINT height, int *x, int *y, UINT *row, UINT *x_shift);
-
-int main()
-{
-	int x = 0;
-    int y = 0;
-    UINT8 *base8 = Physbase();
-    UINT16 *base16 = (UINT16 *) base8;
-    UINT32 *base32 = (UINT32 *) base8;
-    UINT8 bullet[8] = {
-                       0x0,
-                       0x3F,
-                       0x40,
-                       0xFF,
-                       0xFF,
-                       0x7F,
-                       0x3F,
-                       0x0
-    };
-    UINT16 invader_bitmap[16] = {
-                                 0x1008,
-                                 0x1998,
-                                 0x5bda,
-                                 0x2ff4,
-                                 0x6bd6,
-                                 0xedb7,
-                                 0xf7ef,
-                                 0xdbdb,
-                                 0xbc3d,
-                                 0x37ec,
-                                 0x67e6,
-                                 0x73ce,
-                                 0x47e2,
-                                 0xe70,
-                                 0x1c38,
-                                 0x1428
-    };
-
-    UINT32 bitmap[32] = {
-                         0x0,
-                         0x0,
-                         0x3f00,
-                         0xffc0,
-                         0x1ffc0,
-                         0x3ffe0,
-                         0x3ffe0,
-                         0x7def0,
-                         0x7def0,
-                         0x7fff0,
-                         0x3fff0,
-                         0xffffc,
-                         0xfe9fc,
-                         0x7e1f0,
-                         0x3ffe0,
-                         0xffc0,
-                         0x7f80,
-                         0x8060,
-                         0x18070,
-                         0x3fffc,
-                         0x3bf9c,
-                         0x77fa0,
-                         0x77fc0,
-                         0xff00,
-                         0xc0,
-                         0x1c0,
-                         0x3c0,
-                         0x180,
-                         0x180,
-                         0x0,
-                         0x0,
-                         0x0
-    };
-
-
-    printf("\033E\033f\n");     /* blank the screen */
-    plot_bitmap_8(base8,3,90,bullet,8);
-    plot_bitmap_16(base16,12,34,invader_bitmap,16);
-    plot_bitmap_32(base32,89,300,bitmap,32);
-    Cnecin();
-	return 0;
-}
+#include "global.h"
+#include "raster.h"
 
 bool within_bounds(UINT base, UINT height, int *x, int *y, UINT *row, UINT *x_shift) {
     if( *y < 0 && *y > -height) {
@@ -221,4 +108,9 @@ void plot_bitmap_32(UINT32 *base, int x, int y, const UINT32 *bitmap, UINT heigh
             dst += B32_PER_LINE;
         }
     }
+}
+
+void plot_bitmap_64(UINT32 *base, int x, int y, const UINT32 *bitmapA, UINT32 *bitmapB, UINT height) {
+    plot_bitmap_32(base,x,y,bitmapA,height);
+    plot_bitmap_32(base,x+32,y,bitmapB,height);
 }
