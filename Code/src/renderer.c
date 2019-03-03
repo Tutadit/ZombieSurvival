@@ -1,5 +1,5 @@
 #include "global.h"
-#include "player.h"
+#include "player_b.h"
 #include "zombie.h"
 #include "raster.h"
 #include "model.h"

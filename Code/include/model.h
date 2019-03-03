@@ -31,4 +31,18 @@ struct Zombie {
     unsigned int direction;
 };
 
+void player_set_postion(struct Player *player, int x, int y);
+void player_set_aim_direction(struct Player *player,
+                              int mouse_x,
+                             int mouse_y);
+
+void player_set_move_direction(struct Player *player, int direction);
+void player_set_speed(struct Player *player, int speed);
+bool player_take_damage(struct Player *player, int damage);
+void player_reload(struct Player *player);
+void player_max_ammo(struct Player *player);
+void zombie_set_speed(struct Zombie *zombie, int speed);
+void zombie_strength(struct Zombie *zombie, int strength);
+bool zombie_take_damage(struct Zombie * zombie, int damage );
+
 #endif

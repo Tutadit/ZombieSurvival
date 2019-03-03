@@ -1,5 +1,5 @@
 #include "global.h"
-#include "player.h"
+#include "player_b.h"
 
 const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT] = {
                              0x38000,
@@ -52,7 +52,7 @@ const UINT32 PLAYER_BODY_SOUTH[PLAYER_BODY_HEIGHT] = {
                              0x28000
 };
 
-const UINT32 PLAYER_BODY_NORTH[32] = {
+const UINT32 PLAYER_BODY_NORTH[PLAYER_BODY_HEIGHT] = {
                            0x38000,
                            0x28000,
                            0x28000,
@@ -180,10 +180,11 @@ const UINT32 PLAYER_WEST_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
 };
 
 const UINT32 PLAYER_NORTH_STEP_ONE[PLAYER_LEGS_HEIGHT] = {
-                             0x28000,
-                             0x28000,
-                             0x8000,
-                             0x8000
+                                                          0x28000,
+                                                          0x28000,
+                                                          0x28000,
+                                                          0x8000,
+                                                          0x8000
 };
 
 const UINT32 PLAYER_NORTH_STOP[PLAYER_LEGS_HEIGHT] = {
@@ -201,6 +202,7 @@ const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
                                0x20000,
                                0x20000
 };
+
 
 const UINT32 *PLAYER_BODY[8] = {
                          PLAYER_BODY_NORTH,
@@ -235,3 +237,13 @@ const UINT32 *PLAYER_STEP[4][3] = {
                              PLAYER_NORTH_STEP_TWO
                             }
 };
+
+
+const int LOOK_N = 0;
+const int LOOK_NW = 1;
+const int LOOK_W = 2;
+const int LOOK_SW = 3;
+const int LOOK_S = 4;
+const int LOOK_SE = 5;
+const int LOOK_E = 6;
+const int LOOK_NE = 7;

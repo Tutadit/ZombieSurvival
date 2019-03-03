@@ -24,4 +24,13 @@ extern const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT];
 extern const UINT32 *PLAYER_BODY[8];
 extern const UINT32 *PLAYER_STEP[4][3];
 
+extern const int LOOK_N = 0;
+extern const int LOOK_NW = 1;
+extern const int LOOK_W = 2;
+extern const int LOOK_SW = 3;
+extern const int LOOK_S = 4;
+extern const int LOOK_SE = 5;
+extern const int LOOK_E = 6;
+extern const int LOOK_NE = 7;
+
 #endif

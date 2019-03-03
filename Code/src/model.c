@@ -1,7 +1,40 @@
 #include "global.h"
+#include "player_b.h"
 #include "model.h"
 
-void player_set_aim_direction(struct Player *player, int direction) {
+#include <stdlib.h>
+#include <math.h>
+
+void player_set_postion(struct Player *player, int x, int y) {
+    player->position_x = x;
+    player->position_y = y;
+}
+void player_set_aim_direction(struct Player *player,
+                              int mouse_x,
+                              int mouse_y) {
+    double delta_x = mouse_x - player->position_x;
+    double delta_y = player->position_y - mouse_y;
+    double theta_radians = atan2(delta_y,delta_x);
+    int direction;
+     if (theta_radians <= 0.3926991) {
+         direction = LOOK_N;
+     } else if (theta_radians < 1.178097) {
+         direction = LOOK_NE;
+     } else if (theta_radians <= 1.9634954) {
+         direction = LOOK_E;
+     } else if (theta_radians < 2.7488936) {
+         direction = LOOK_SE;
+     } else if (theta_radians <= 3.5342917) {
+         direction = LOOK_S;
+     } else if (theta_radians < 4.3196899) {
+         direction = LOOK_SW;
+     } else if (theta_radians <= 5.1050881) {
+         direction = LOOK_W;
+     } else if (theta_radians < 5.8904862) {
+         direction = LOOK_NW;
+     } else {
+         direction = LOOK_N;
+     }
     player->aim_direction = direction;
 }
 
@@ -53,4 +86,5 @@ bool zombie_take_damage(struct Zombie * zombie, int damage ){
         dead = true;
     }
     zombie->health -= damage;
+    return dead;
 }
