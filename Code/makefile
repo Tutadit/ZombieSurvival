@@ -7,15 +7,15 @@ TEST_SRCDIR=test
 BUILDDIR=build
 TEST_BUILDDIR=build\test
 
-OBJECTS=$(BUILDDIR)\model.o $(BUILDDIR)\raster.o $(BUILDDIR)\clear.o $(BUILDDIR)\player_b.o $(BUILDDIR)\renderer.o
+OBJECTS=$(BUILDDIR)\model.o $(BUILDDIR)\raster.o $(BUILDDIR)\clear.o $(BUILDDIR)\player_b.o $(BUILDDIR)\zombie_b.o $(BUILDDIR)\misc_b.o $(BUILDDIR)\renderer.o
 
-TEST_OBJECTS=$(OBJECTS) $(TEST_BUILDDIR)\t_raster.o $(TEST_BUILDDIR)\t_player.o $(TEST_BUILDDIR)\t_runner.o
+TEST_OBJECTS=$(OBJECTS) $(TEST_BUILDDIR)\t_raster.o $(TEST_BUILDDIR)\t_player.o $(TEST_BUILDDIR)\t_render.o $(TEST_BUILDDIR)\t_runner.o
 
 CC=cc68x
 ASM=gen
 
 ASMFLAGS=-D -L2
-CFLAGS=-g -W6
+CFLAGS=-g -W3
 INC=-Iinclude
 
 $(TARGET): $(OBJECTS)
@@ -36,6 +36,12 @@ $(BUILDDIR)\renderer.o: $(SRCDIR)\renderer.c
 $(BUILDDIR)\player_b.o: $(SRCDIR)\player_b.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+$(BUILDDIR)\zombie_b.o: $(SRCDIR)\zombie_b.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(BUILDDIR)\misc_b.o: $(SRCDIR)\misc_b.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
 $(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
 	$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
 
@@ -44,7 +50,7 @@ test: $(TEST_TARGET)
 	bin/test
 
 $(TEST_TARGET): $(TEST_OBJECTS)
-	$(CC) $(CFLAGS) $(INC) $(TEST_OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(INC) $(TEST_OBJECTS) c:\c68\lib\libm.a -o $@
 
 $(TEST_BUILDDIR)\t_raster.o: $(TEST_SRCDIR)\t_raster.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -52,6 +58,12 @@ $(TEST_BUILDDIR)\t_raster.o: $(TEST_SRCDIR)\t_raster.c
 $(TEST_BUILDDIR)\t_player.o: $(TEST_SRCDIR)\t_player.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+$(TEST_BUILDDIR)\t_render.o: $(TEST_SRCDIR)\t_render.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 $(TEST_BUILDDIR)\t_runner.o: $(TEST_SRCDIR)\t_runner.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+clean:
+	%Rm build\*.o
+	%Rm build\test\*.o

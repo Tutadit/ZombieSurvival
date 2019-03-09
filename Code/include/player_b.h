@@ -24,13 +24,13 @@ extern const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT];
 extern const UINT32 *PLAYER_BODY[8];
 extern const UINT32 *PLAYER_STEP[4][3];
 
-extern const int LOOK_N;
-extern const int LOOK_NW;
-extern const int LOOK_W;
-extern const int LOOK_SW;
-extern const int LOOK_S;
-extern const int LOOK_SE;
-extern const int LOOK_E;
-extern const int LOOK_NE;
+extern const UINT LOOK_N;
+extern const UINT LOOK_NW;
+extern const UINT LOOK_W;
+extern const UINT LOOK_SW;
+extern const UINT LOOK_S;
+extern const UINT LOOK_SE;
+extern const UINT LOOK_E;
+extern const UINT LOOK_NE;
 
 #endif

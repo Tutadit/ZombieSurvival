@@ -14,20 +14,54 @@ void test_player(UINT32 *base) {
     test_player_render(base);
 }
 
+void plot_pixel(char *base, int x, int y)
+{
+    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
+        *(base + y * 80 + (x >> 3)) |= 1 << 7 - (x & 7);
+}
 void test_player_render(UINT32 *base) {
     struct Player player;
     int x = 100;
     int y = 100;
+    int m_x;
+    int m_y;
+    int ai = 0;
+    int key;
+    linea0();
 
+    player.step = 0;
+    player.move_direction = 0;
+    /*!Cconis()*/
     while(true) {
+        m_x = GCURX;
+        m_y = GCURY;
+        key = Cnecin();
+        if (key == 119) {
+            player.speed = 1;
+            player_set_move_direction(&player,3);
+            y--;
+        } else if (key == 115) {
+            player.speed = 1;
+            player_set_move_direction(&player,1);
+            y++;
+        } else if (key == 97) {
+            player.speed = 1;
+            player_set_move_direction(&player,0);
+            x--;
+        } else if (key == 100) {
+            player.speed = 1;
+            player_set_move_direction(&player,2);
+            x++;
+        }
+        fflush(stdout);
         player_set_postion(&player,x,y);
-        player_set_aim_direction(&player, 40,40);
-        player_set_move_direction(&player,1);
-        player.step = 0;
+        player_set_aim_direction(&player, m_x,m_y);
+        player.speed = 1;
+        player_set_step(&player);
         Vsync();
         clear_screen(base);
         render_player(&player,base);
-        Cnecin();
+        plot_pixel((char *)base, m_x,m_y);
     }
 
 }

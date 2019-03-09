@@ -2,7 +2,10 @@
 #include "player_b.h"
 #include "model.h"
 
-#include <stdlib.h>
+#include <stdio.h>
+#include <osbind.h>
+#include <linea.h>
+
 #include <math.h>
 
 void player_set_postion(struct Player *player, int x, int y) {
@@ -12,28 +15,36 @@ void player_set_postion(struct Player *player, int x, int y) {
 void player_set_aim_direction(struct Player *player,
                               int mouse_x,
                               int mouse_y) {
-    double delta_x = mouse_x - player->position_x;
+
+    double delta_x = mouse_x - player->position_x + 15;
     double delta_y = player->position_y - mouse_y;
-    double theta_radians = atan2(delta_y,delta_x);
+
+    double angle;
     int direction;
-     if (theta_radians <= 0.3926991) {
-         direction = LOOK_N;
-     } else if (theta_radians < 1.178097) {
-         direction = LOOK_NE;
-     } else if (theta_radians <= 1.9634954) {
+
+    angle = atan2(delta_y , delta_x);
+    if(angle < 0 ) {
+        angle+=6.28319;
+    }
+
+     if (angle <= 0.3926991) {
          direction = LOOK_E;
-     } else if (theta_radians < 2.7488936) {
-         direction = LOOK_SE;
-     } else if (theta_radians <= 3.5342917) {
-         direction = LOOK_S;
-     } else if (theta_radians < 4.3196899) {
-         direction = LOOK_SW;
-     } else if (theta_radians <= 5.1050881) {
-         direction = LOOK_W;
-     } else if (theta_radians < 5.8904862) {
-         direction = LOOK_NW;
-     } else {
+     } else if (angle < 1.178097) {
+         direction = LOOK_NE;
+     } else if (angle <= 1.9634954) {
          direction = LOOK_N;
+     } else if (angle < 2.7488936) {
+         direction = LOOK_NW;
+     } else if (angle <= 3.5342917) {
+         direction = LOOK_W;
+     } else if (angle < 4.3196899) {
+         direction = LOOK_SW;
+     } else if (angle <= 5.1050881) {
+         direction = LOOK_S;
+     } else if (angle < 5.8904862) {
+         direction = LOOK_SE;
+     } else {
+         direction = LOOK_E;
      }
     player->aim_direction = direction;
 }
@@ -70,12 +81,28 @@ void player_max_ammo(struct Player *player) {
     player->ammo = player->max_ammo;
 }
 
+void player_set_step(struct Player *player) {
+    if(player->speed > 0) {
+        if(player->step == 2) {
+            player->step = 0;
+        } else {
+            player->step = player->step + 1;
+        }
+    } else {
+        player->step = 0;
+    }
+}
+
 void zombie_set_speed(struct Zombie *zombie, int speed){
     if(speed <= zombie->max_speed){
       zombie->speed = speed;
     }
 }
 
+void zombie_set_position(struct Zombie *zombie, int x, int y) {
+    zombie->position_x = x;
+    zombie->position_y = y;
+}
 void zombie_strength(struct Zombie *zombie, int strength){
   zombie->strength = strength;
 }
@@ -87,4 +114,21 @@ bool zombie_take_damage(struct Zombie * zombie, int damage ){
     }
     zombie->health -= damage;
     return dead;
+}
+
+void zombie_set_direction(struct Zombie * zombie, int direction) {
+    zombie->direction = direction;
+}
+
+void zombie_set_step(struct Zombie *zombie) {
+    zombie->step = 0;
+}
+
+void misc_set_postion(struct Misc_Obj *obj, int x, int y) {
+    obj->position_x = x;
+    obj->position_y = y;
+}
+
+void misc_set_index(struct Misc_Obj *obj, int index) {
+    obj->index = index;
 }

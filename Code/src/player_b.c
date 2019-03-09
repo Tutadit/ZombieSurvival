@@ -239,11 +239,11 @@ const UINT32 *PLAYER_STEP[4][3] = {
 };
 
 
-const int LOOK_N = 0;
-const int LOOK_NW = 1;
-const int LOOK_W = 2;
-const int LOOK_SW = 3;
-const int LOOK_S = 4;
-const int LOOK_SE = 5;
-const int LOOK_E = 6;
-const int LOOK_NE = 7;
+const UINT LOOK_N = 0;
+const UINT LOOK_NW = 1;
+const UINT LOOK_W = 2;
+const UINT LOOK_SW = 3;
+const UINT LOOK_S = 4;
+const UINT LOOK_SE = 5;
+const UINT LOOK_E = 6;
+const UINT LOOK_NE = 7;
