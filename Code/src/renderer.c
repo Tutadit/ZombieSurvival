@@ -25,6 +25,14 @@ void render_zombie(const struct Zombie *zombie, UINT32 *base) {
                    ZOMBIE_HEIGHT);
 }
 
+void render_cross(const struct Cross *cross, UINT32 *base) {
+    plot_bitmap_8((UINT8 *)base,
+                  cross->position_x,
+                  cross->position_y,
+                  CROSS,
+                  CROSS_HEIGHT);
+}
+
 void render_misc(const struct Misc_Obj *obj, UINT32 *base) {
     plot_bitmap_32(base,
                    zombie->position_x,

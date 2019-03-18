@@ -30,3 +30,9 @@ const UINT32 TREE_01[27] = {
                             0x10000,
                             0x10000
 };
+
+const UINT8 CROSS[CROSS_HEIGHT] = {
+                                   0x40,
+                                   0xE0,
+                                   0x40
+}

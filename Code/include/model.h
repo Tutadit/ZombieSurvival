@@ -22,6 +22,11 @@ struct Bullet {
     unsigned int position_y;
 };
 
+struct Cross {
+    unsigned int position_x;
+    unsigned int position_y;
+};
+
 struct Zombie {
     int position_x;
     int position_y;
