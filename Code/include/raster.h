@@ -16,6 +16,7 @@
 #define B32_DIVIDE_SHIFT 5
 #define B32_MODULUS_MASK 0x1F
 
+void plot_pixel(UINT8 *base, int x, int y);
 void plot_bitmap_8(UINT8 *base, int x, int y, const UINT8 *bitmap, UINT height);
 void plot_bitmap_16(UINT16 *base, int x, int y, const UINT16 *bitmap, UINT height);
 void plot_bitmap_32(UINT32 *base, int x, int y, const UINT32 *bitmap, UINT height);

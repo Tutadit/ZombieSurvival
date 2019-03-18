@@ -215,30 +215,37 @@ const UINT32 *PLAYER_BODY[8] = {
                          PLAYER_BODY_NORTHEAST
 };
 
-const UINT32 *PLAYER_STEP[4][3] = {
+const UINT32 *PLAYER_STEP[4][PLAYER_TOTAL_STEPS] = {
                             {
-                             PLAYER_WEST_STOP,
                              PLAYER_WEST_STEP_ONE,
-                             PLAYER_WEST_STEP_TWO
+                             PLAYER_WEST_STOP,
+                             PLAYER_WEST_STEP_TWO,
+                             PLAYER_WEST_STOP
                             },
                             {
-                             PLAYER_NORTH_STOP,
                              PLAYER_NORTH_STEP_ONE,
-                             PLAYER_NORTH_STEP_TWO
+                             PLAYER_NORTH_STOP,
+                             PLAYER_NORTH_STEP_TWO,
+                             PLAYER_NORTH_STOP
                             },
                             {
-                             PLAYER_EAST_STOP,
                              PLAYER_EAST_STEP_ONE,
-                             PLAYER_EAST_STEP_TWO
+                             PLAYER_EAST_STOP,
+                             PLAYER_EAST_STEP_TWO,
+                             PLAYER_EAST_STOP
                             },
                             {
-                             PLAYER_NORTH_STOP,
                              PLAYER_NORTH_STEP_ONE,
-                             PLAYER_NORTH_STEP_TWO
+                             PLAYER_NORTH_STOP,
+                             PLAYER_NORTH_STEP_TWO,
+                             PLAYER_NORTH_STOP
                             }
 };
 
-
+const UINT MOVE_W = 0;
+const UINT MOVE_N = 1;
+const UINT MOVE_E = 2;
+const UINT MOVE_S = 3;
 const UINT LOOK_N = 0;
 const UINT LOOK_NW = 1;
 const UINT LOOK_W = 2;

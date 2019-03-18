@@ -319,24 +319,28 @@ const UINT32 ZOMBIE_SOUTH_STEP_TWO[ZOMBIE_HEIGHT] = {
 
 const UINT32 *ZOMBIE_DIRECTION_STEP[4][3] = {
                                              {
-                                              ZOMBIE_WEST_STOP,
                                               ZOMBIE_WEST_STEP_ONE,
-                                              ZOMBIE_WEST_STEP_TWO
+                                              ZOMBIE_WEST_STOP,
+                                              ZOMBIE_WEST_STEP_TWO,
+                                              ZOMBIE_WEST_STOP
                                              },
                                              {
-                                              ZOMBIE_NORTH_STOP,
                                               ZOMBIE_NORTH_STEP_ONE,
-                                              ZOMBIE_NORTH_STEP_TWO
+                                              ZOMBIE_NORTH_STOP,
+                                              ZOMBIE_NORTH_STEP_TWO,
+                                              ZOMBIE_NORTH_STOP
                                              },
                                              {
-                                              ZOMBIE_EAST_STOP,
                                               ZOMBIE_EAST_STEP_ONE,
-                                              ZOMBIE_EAST_STEP_TWO
+                                              ZOMBIE_EAST_STOP,
+                                              ZOMBIE_EAST_STEP_TWO,
+                                              ZOMBIE_EAST_STOP
                                              },
                                              {
-                                              ZOMBIE_SOUTH_STOP,
                                               ZOMBIE_SOUTH_STEP_ONE,
-                                              ZOMBIE_SOUTH_STEP_TWO
+                                              ZOMBIE_SOUTH_STOP,
+                                              ZOMBIE_SOUTH_STEP_TWO,
+                                              ZOMBIE_SOUTH_STOP
                                              }
 };
 

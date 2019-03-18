@@ -2,6 +2,11 @@
 #include "global.h"
 #include "raster.h"
 
+void plot_pixel(UINT8 *base, int x, int y) {
+    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
+        *(base + y * 80 + (x >> 3)) |= 1 << 7 – (x & 7);
+}
+
 bool within_bounds(UINT base, UINT height, int *x, int *y, UINT *row, UINT *x_shift) {
     if( *y < 0 && *y > -height) {
         *row = abs(*y);
