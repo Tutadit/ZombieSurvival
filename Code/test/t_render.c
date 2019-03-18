@@ -9,36 +9,41 @@
 #include "zombie_b.h"
 #include "t_render.h"
 
+#define TOTAL_ZOMBIES 7
 void test_renderer(UINT32 *base) {
     struct Player player;
-    struct Zombie zombie01;
-    struct Zombie zombie02;
-    struct Zombie zombie03;
-
+    struct Zombie zombies[TOTAL_ZOMBIES];
+    int positions[TOTAL_ZOMBIES][2] = {
+                                       30,30,
+                                       200,30,
+                                       400,30,
+                                       30,200,
+                                       30,350,
+                                       200,350,
+                                       400,350
+    };
+    int i = 0;
     clear_screen(base);
-    player_set_postion(&player, 100,200);
-    player_set_aim_direction(&player, 1,1);
-    player_set_move_direction(&player,0);
-    player.speed = 0;
-    player_set_step(&player);
-
-    zombie_set_position(&zombie01, 50, 200);
-    zombie_set_direction(&zombie01, Z_MOVE_E);
-    zombie_set_step(&zombie01);
-
-    zombie_set_position(&zombie02, 200, 200);
-    zombie_set_direction(&zombie02, Z_MOVE_W);
-    zombie_set_step(&zombie02);
-
-    zombie_set_position(&zombie03, 80, 300);
-    zombie_set_direction(&zombie03, Z_MOVE_N);
-    zombie_set_step(&zombie03);
-
+    player_spawn(&player);
     render_player(&player,base);
-    render_zombie(&zombie01,base);
-    render_zombie(&zombie02,base);
-    render_zombie(&zombie03,base);
+    for(; i < TOTAL_ZOMBIES; i++) {
+        zombie_spawn(&zombies[i],positions[i][0],positions[i][1]);
+        zombie_set_direction(&zombies[i],&player);
+        render_zombie(&zombies[i],base);
+    }
 
-    Cnecin();
+    while(true) {
+        Vsync();
+        player_update_postion(&player);
+        render_player(&player,base);
+        for(i = 0; i < TOTAL_ZOMBIES; i++) {
+            zombie_set_direction(&zombies[i],&player);
+            zombie_update_position(&zombies[i]);
+            zombie_set_step(&zombies[i]);
+            render_zombie(&zombies[i],base);
+        }
+        Cnecin();
+        clear_screen(base);
+    }
 
 }

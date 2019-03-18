@@ -6,6 +6,21 @@
 #define PLAYER_TOTAL_STEPS 4
 #define PLAYER_STEPS_STOP_NUMBER 1
 
+
+#define MOVE_W 0
+#define MOVE_N 1
+#define MOVE_E 2
+#define MOVE_S 3
+
+#define LOOK_N  0
+#define LOOK_NW 1
+#define LOOK_W  2
+#define LOOK_SW 3
+#define LOOK_S  4
+#define LOOK_SE 5
+#define LOOK_E  6
+#define LOOK_NE 7
+
 extern const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT];
 extern const UINT32 PLAYER_BODY_EAST[PLAYER_BODY_HEIGHT];
 extern const UINT32 PLAYER_BODY_SOUTH[PLAYER_BODY_HEIGHT];
@@ -25,14 +40,4 @@ extern const UINT32 PLAYER_NORTH_STOP[PLAYER_LEGS_HEIGHT];
 extern const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT];
 extern const UINT32 *PLAYER_BODY[8];
 extern const UINT32 *PLAYER_STEP[4][PLAYER_TOTAL_STEPS];
-
-extern const UINT LOOK_N;
-extern const UINT LOOK_NW;
-extern const UINT LOOK_W;
-extern const UINT LOOK_SW;
-extern const UINT LOOK_S;
-extern const UINT LOOK_SE;
-extern const UINT LOOK_E;
-extern const UINT LOOK_NE;
-
 #endif

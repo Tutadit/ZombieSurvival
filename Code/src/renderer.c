@@ -1,6 +1,7 @@
 #include "global.h"
 #include "player_b.h"
 #include "zombie_b.h"
+#include "misc_b.h"
 #include "raster.h"
 #include "model.h"
 
@@ -35,10 +36,10 @@ void render_cross(const struct Cross *cross, UINT32 *base) {
 
 void render_misc(const struct Misc_Obj *obj, UINT32 *base) {
     plot_bitmap_32(base,
-                   zombie->position_x,
-                   zombie->position_y,
-                   ZOMBIE_DIRECTION_STEP[zombie->direction][zombie->step],
-                   ZOMBIE_HEIGHT);
+                   obj->position_x,
+                   obj->position_y,
+                   TREE_01,
+                   TREE_01_HEIGHT);
 }
 
 void render_bullet(const struct Bullet *bullet, UINT32 *base) {

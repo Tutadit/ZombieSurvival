@@ -13,7 +13,7 @@ int main() {
 
     UINT32 *base = Physbase();
     test_raster(base);
-    test_player(base);
+    /*   test_player(base);*/
     test_renderer(base);
 
 	return 0;

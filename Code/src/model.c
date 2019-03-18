@@ -1,5 +1,6 @@
 #include "global.h"
 #include "player_b.h"
+#include "zombie_b.h"
 #include "model.h"
 
 #include <stdio.h>
@@ -8,8 +9,32 @@
 
 #include <math.h>
 
+void player_spawn(struct Player *player) {
+    player->position_x = PLAYER_START_X;
+    player->position_y = PLAYER_START_Y;
+    player->health = PLAYER_START_HEALTH;
+    player->speed = PLAYER_START_SPEED;
+    player->max_speed = PLAYER_START_MAX_SPEED;
+    player->magazine = PLAYER_START_MAGAZINE;
+    player->max_magazine = PLAYER_START_MAX_MAGAZINE;
+    player->aim_direction = PLAYER_START_AIM_DIRECTION;
+    player->move_direction = PLAYER_START_MOVE_DIRECTION;
+    player->step = PLAYER_START_STEP;
+}
+
+void zombie_spawn(struct Zombie *zombie, int x, int y) {
+    zombie->position_x = x;
+    zombie->position_y = y;
+    zombie->health = ZOMBIE_START_HEALTH;
+    zombie->speed = ZOMBIE_START_SPEED;
+    zombie->max_speed = ZOMBIE_START_MAX_SPEED;
+    zombie->strength = ZOMBIE_START_STRENGTH;
+    zombie->direction = ZOMBIE_START_DIRECTION;
+    zombie->step = ZOMBIE_START_STEP;
+}
+
 void player_update_postion(struct Player *player) {
-    if (player_speed > 0) {
+    if (player->speed > 0) {
         switch ( player->move_direction ) {
         case MOVE_W:
             player->position_x--;
@@ -114,19 +139,19 @@ void zombie_set_speed(struct Zombie *zombie, int speed){
 }
 
 void zombie_update_position(struct Zombie *zombie) {
-    if (zombie_speed > 0) {
+    if (zombie->speed > 0) {
         switch ( zombie->direction ) {
         case Z_MOVE_W:
-            zombie->position_x--;
+            zombie->position_x = zombie->position_x - 1;
             break;
         case Z_MOVE_N:
-            zombie->position_y--;
+            zombie->position_y = zombie->position_y - 1;
             break;
         case Z_MOVE_E:
-            zombie->position_x++;
+            zombie->position_x = zombie->position_x + 1;
             break;
         case Z_MOVE_S:
-            zombie->position_y++;
+            zombie->position_y = zombie->position_y + 1;;
             break;
         }
     }
@@ -158,17 +183,18 @@ void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
         angle+=6.28319;
     }
 
-    if (angle <= 0.3926991) {
+    if (angle <= 0.78539816339) {
         direction = Z_MOVE_E;
-    } else if (angle <= 1.9634954) {
+    } else if (angle < 2.35619449019) {
         direction = Z_MOVE_N;
-    } else if (angle <= 3.5342917) {
+    } else if (angle <= 3.92699081699) {
         direction = Z_MOVE_W;
-    } else if (angle <= 5.1050881) {
+    } else if (angle < 5.49778714378) {
         direction = Z_MOVE_S;
     } else {
         direction = Z_MOVE_E;
     }
+
     zombie->direction = direction;
 }
 
