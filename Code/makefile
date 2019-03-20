@@ -7,9 +7,11 @@ TEST_SRCDIR=test
 BUILDDIR=build
 TEST_BUILDDIR=build\test
 
-OBJECTS=$(BUILDDIR)\model.o $(BUILDDIR)\raster.o $(BUILDDIR)\clear.o $(BUILDDIR)\player_b.o $(BUILDDIR)\zombie_b.o $(BUILDDIR)\misc_b.o $(BUILDDIR)\renderer.o
+OBJECTS=$(BUILDDIR)\model.o $(BUILDDIR)\raster.o $(BUILDDIR)\clear.o $(BUILDDIR)\player_b.o $(BUILDDIR)\zombie_b.o $(BUILDDIR)\misc_b.o $(BUILDDIR)\renderer.o $(BUILDDIR)\zs.o
 
 TEST_OBJECTS=$(OBJECTS) $(TEST_BUILDDIR)\t_raster.o $(TEST_BUILDDIR)\t_player.o $(TEST_BUILDDIR)\t_render.o $(TEST_BUILDDIR)\t_runner.o
+
+MATH_LIB=c:\c68\lib\libm.a
 
 CC=cc68x
 ASM=gen
@@ -19,7 +21,7 @@ CFLAGS=-g -W3
 INC=-Iinclude
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(INC) $(OBJECTS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(OBJECTS) $(MATH_LIB) -o $(TARGET)
 
 $(BUILDDIR)\raster.o: $(SRCDIR)\raster.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -45,12 +47,15 @@ $(BUILDDIR)\misc_b.o: $(SRCDIR)\misc_b.c
 $(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
 	$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
 
+$(BUILDDIR)\zs.o: $(SRCDIR)\zs.c
+	$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
 test: $(TEST_TARGET)
 	%echo "Running tests..."
 	bin/test
 
 $(TEST_TARGET): $(TEST_OBJECTS)
-	$(CC) $(CFLAGS) $(INC) $(TEST_OBJECTS) c:\c68\lib\libm.a -o $@
+	$(CC) $(CFLAGS) $(INC) $(TEST_OBJECTS) $(MATH_LIB) -o $@
 
 $(TEST_BUILDDIR)\t_raster.o: $(TEST_SRCDIR)\t_raster.c
 	$(CC) $(CFLAGS) $(INC) -c -o $@ $<

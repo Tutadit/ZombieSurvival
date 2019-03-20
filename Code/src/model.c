@@ -8,6 +8,18 @@
 #include <linea.h>
 
 #include <math.h>
+#include <stdlib.h>
+
+const int bullet_shooting_pos[8][2] = {
+                       15,0, /* N  */
+                       9,2,  /* NW */
+                       8,8,  /* W  */
+                       10,13,/* SW */
+                       15,10,/* S  */
+                       18,13,/* SE */
+                       21,8, /* E  */
+                       20,2  /* NE */
+    };
 
 void player_spawn(struct Player *player) {
     player->position_x = PLAYER_START_X;
@@ -22,9 +34,9 @@ void player_spawn(struct Player *player) {
     player->step = PLAYER_START_STEP;
 }
 
-void zombie_spawn(struct Zombie *zombie, int x, int y) {
-    zombie->position_x = x;
-    zombie->position_y = y;
+void zombie_spawn(struct Zombie *zombie) {
+    zombie->position_x = (rand() % 640);
+    zombie->position_y = -32;
     zombie->health = ZOMBIE_START_HEALTH;
     zombie->speed = ZOMBIE_START_SPEED;
     zombie->max_speed = ZOMBIE_START_MAX_SPEED;
@@ -52,39 +64,40 @@ void player_update_postion(struct Player *player) {
     }
 }
 void player_set_aim_direction(struct Player *player, struct Cross *cross) {
-    int mouse_x = cross->position_x;
-    int mouse_y = cross->position_y;
+    int delta_x = cross->position_x - player->position_x;
+    int delta_y = player->position_y - cross->position_y;
+    int direction = LOOK_E;
 
-    double delta_x = mouse_x - player->position_x + 15;
-    double delta_y = player->position_y - mouse_y;
-
-    double angle;
-    int direction;
-
-    angle = atan2(delta_y , delta_x);
-    if(angle < 0 ) {
-        angle+=6.28319;
+    bool steep = abs(delta_y) > abs(delta_x * 2);
+    bool shallow = abs(delta_x) > abs(delta_y * 2);
+    bool upwards = delta_y > 0;
+    bool right = delta_x > 0;
+    bool dy_gt_0 = delta_y > 0;
+    bool dx_gt_0 = delta_x > 0;
+    if ( steep ) {
+        if (upwards)
+            direction = LOOK_N;
+        else {
+            direction = LOOK_S;
+        }
+    } else if (shallow) {
+        if (right) {
+            direction = LOOK_E;
+        } else {
+            direction = LOOK_W;
+        }
+    } else {
+        if ( delta_x < 0 && delta_y < 0 ) {
+            direction = LOOK_SW;
+        } else if ( delta_x < 0 && delta_y > 0 ) {
+            direction = LOOK_NW;
+        } else if ( delta_x > 0 && delta_y > 0 ) {
+            direction = LOOK_NE;
+        } else {
+            direction = LOOK_SE;
+        }
     }
 
-     if (angle <= 0.3926991) {
-         direction = LOOK_E;
-     } else if (angle < 1.178097) {
-         direction = LOOK_NE;
-     } else if (angle <= 1.9634954) {
-         direction = LOOK_N;
-     } else if (angle < 2.7488936) {
-         direction = LOOK_NW;
-     } else if (angle <= 3.5342917) {
-         direction = LOOK_W;
-     } else if (angle < 4.3196899) {
-         direction = LOOK_SW;
-     } else if (angle <= 5.1050881) {
-         direction = LOOK_S;
-     } else if (angle < 5.8904862) {
-         direction = LOOK_SE;
-     } else {
-         direction = LOOK_E;
-     }
     player->aim_direction = direction;
 }
 
@@ -151,7 +164,7 @@ void zombie_update_position(struct Zombie *zombie) {
             zombie->position_x = zombie->position_x + 1;
             break;
         case Z_MOVE_S:
-            zombie->position_y = zombie->position_y + 1;;
+            zombie->position_y = zombie->position_y + 1;
             break;
         }
     }
@@ -170,29 +183,28 @@ bool zombie_take_damage(struct Zombie * zombie, int damage ){
 }
 
 void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
-    int player_x = player->position_x;
-    int player_y = player->position_y;
+    int delta_x = player->position_x - zombie->position_x;
+    int delta_y = zombie->position_y - player->position_y;
+    int direction = LOOK_E;
 
-    double delta_x = player_x - zombie->position_x + 15;
-    double delta_y = zombie->position_y - player_y;
-
-    double angle;
-    int direction;
-    angle = atan2(delta_y , delta_x);
-    if(angle < 0 ) {
-        angle+=6.28319;
-    }
-
-    if (angle <= 0.78539816339) {
-        direction = Z_MOVE_E;
-    } else if (angle < 2.35619449019) {
-        direction = Z_MOVE_N;
-    } else if (angle <= 3.92699081699) {
-        direction = Z_MOVE_W;
-    } else if (angle < 5.49778714378) {
-        direction = Z_MOVE_S;
+    bool steep = abs(delta_y) > abs(delta_x * 2);
+    bool shallow = abs(delta_x) > abs(delta_y * 2);
+    bool upwards = delta_y > 0;
+    bool right = delta_x > 0;
+    bool dy_gt_0 = delta_y > 0;
+    bool dx_gt_0 = delta_x > 0;
+    if ( steep ) {
+        if (upwards)
+            direction = Z_MOVE_N;
+        else {
+            direction = Z_MOVE_S;
+        }
     } else {
-        direction = Z_MOVE_E;
+        if (right) {
+            direction = Z_MOVE_E;
+        } else {
+            direction = Z_MOVE_W;
+        }
     }
 
     zombie->direction = direction;
@@ -224,7 +236,40 @@ void cross_set_position(struct Cross *cross, int x, int y) {
     cross->position_y = y;
 }
 
-void bullet_set_position(struct Bullet *bullet, int x, int y) {
-    bullet->position_x = x;
-    bullet->position_y = y;
+void bullet_shoot(struct Bullet *bullet, struct Player *player) {
+    bullet->position_x = player->position_x + bullet_shooting_pos[player->aim_direction][0];
+    bullet->position_y = player->position_y + bullet_shooting_pos[player->aim_direction][1];
+    bullet->direction = player->aim_direction;
+}
+void bullet_update_position(struct Bullet *bullet) {
+    switch ( bullet->direction ) {
+    case LOOK_N:
+        bullet->position_y = bullet->position_y - 1;
+        break;
+    case LOOK_NW:
+        bullet->position_x = bullet->position_x - 1;
+        bullet->position_y = bullet->position_y - 1;
+        break;
+    case LOOK_W:
+        bullet->position_x = bullet->position_x - 1;
+        break;
+    case LOOK_SW:
+        bullet->position_x = bullet->position_x - 1;
+        bullet->position_y = bullet->position_y + 1;
+        break;
+    case LOOK_S:
+        bullet->position_y = bullet->position_y + 1;
+        break;
+    case LOOK_SE:
+        bullet->position_x = bullet->position_x + 1;
+        bullet->position_y = bullet->position_y + 1;
+        break;
+    case LOOK_E:
+        bullet->position_x = bullet->position_x + 1;
+        break;
+    case LOOK_NE:
+        bullet->position_x = bullet->position_x + 1;
+        bullet->position_y = bullet->position_y - 1;
+        break;
+    }
 }

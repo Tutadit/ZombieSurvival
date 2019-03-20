@@ -19,6 +19,7 @@
 #define ZOMBIE_START_DIRECTION 0
 #define ZOMBIE_START_STEP 0
 
+extern const int bullet_shooting_pos[8][2];
 struct Player {
     int position_x;
     int position_y;
@@ -38,6 +39,7 @@ struct Player {
 struct Bullet {
     int position_x;
     int position_y;
+    unsigned int direction;
 };
 
 struct Cross {
@@ -64,7 +66,7 @@ struct Misc_Obj {
 };
 
 void player_spawn(struct Player *player);
-void zombie_spawn(struct Zombie *zombie, int x, int y);
+void zombie_spawn(struct Zombie *zombie);
 void player_update_postion(struct Player *player);
 void player_set_aim_direction(struct Player *player, struct Cross *cross);
 void player_set_move_direction(struct Player *player, int direction);
@@ -82,7 +84,8 @@ void zombie_set_direction(struct Zombie * zombie, struct Player *player
 void zombie_set_step(struct Zombie *zombie);
 void misc_set_postion(struct Misc_Obj *obj, int x, int y);
 void misc_set_index(struct Misc_Obj *obj, int index);
-void bullet_set_position(struct Bullet *bullet, int x, int y);
+void bullet_shoot(struct Bullet *bullet, struct Player *player);
+void bullet_update_position(struct Bullet *bullet);
 void cross_set_position(struct Cross *cross, int x, int y);
 
 #endif

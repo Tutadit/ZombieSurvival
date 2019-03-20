@@ -317,7 +317,7 @@ const UINT32 ZOMBIE_SOUTH_STEP_TWO[ZOMBIE_HEIGHT] = {
                                                      0x40000
 };
 
-const UINT32 *ZOMBIE_DIRECTION_STEP[4][4] = {
+const UINT32 *ZOMBIE_DIRECTION_STEP[4][ZOMBIE_TOTAL_STEPS] = {
                                              {
                                               ZOMBIE_WEST_STEP_ONE,
                                               ZOMBIE_WEST_STOP,
