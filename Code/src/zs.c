@@ -12,7 +12,7 @@
 #include "zs.h"
 
 #define CLOCK 0x462
-#define MAX_ZOMBIES 1
+#define MAX_ZOMBIES 15
 #define MAX_BULLETS 50
 
 int main() {
@@ -34,6 +34,7 @@ int main() {
     UINT32 *tmp;
     UINT32 *og = base;
     int key;
+    int zombie_time = 0;
     int i;
     if ( offset !=0 ) {
         base_back += 256 - offset;
@@ -66,7 +67,7 @@ int main() {
         clear_screen(base_back);
 
         render_player(&player,base_back);
-
+        render_stats(&player,base_back);
         for(i = 0; i < MAX_BULLETS; i++ ) {
             if(bullets[i] != NULL) {
                 if ( !bullet_update_position(bullets[i]) ) {
@@ -79,7 +80,9 @@ int main() {
         }
         render_cross(&cross,base_back);
         for (i = 0; i < MAX_ZOMBIES; i++) {
-            render_zombie(zombies[i],base_back);
+            if(zombies[i] != NULL) {
+                render_zombie(zombies[i],base_back);
+            }
         }
 
         detect_collisions(bullets,zombies,&player,
@@ -90,11 +93,17 @@ int main() {
         Setscreen(-1,base_back,-1);
         base_back = tmp;
         update_player(&player,&cross, &quit);
+
         timeNow = get_time();
         timeElapsed = timeNow - timeThen;
-        if ( timeElapsed > 10 ) {
-            update_zombies(zombies,&player);
+        if ( timeElapsed > 5 ) {
+            player_update_postion(&player);
+            player_set_step(&player);
             timeThen = timeNow;
+            zombie_time = ~zombie_time;
+            if ( zombie_time ) {
+                update_zombies(zombies,&player);
+            }
         }
     }
     Setscreen(-1,og,-1);
@@ -118,9 +127,16 @@ void initialize_game(struct Player *player,
 void update_zombies(struct Zombie *zombies[], struct Player *player) {
     int i;
     for(i = 0; i < MAX_ZOMBIES; i++) {
-        zombie_set_direction(zombies[i],player);
-        zombie_update_position(zombies[i]);
-        zombie_set_step(zombies[i]);
+        if (zombies[i] != NULL) {
+            if (zombies[i]->health > 0 ) {
+                zombie_set_direction(zombies[i],player);
+                zombie_update_position(zombies[i]);
+                zombie_set_step(zombies[i]);
+            } else {
+                free(zombies[i]);
+                zombies[i] = NULL;
+            }
+        }
     }
 }
 void update_player(struct Player *player, struct Cross *cross,
@@ -147,6 +163,9 @@ void update_player(struct Player *player, struct Cross *cross,
             player_set_speed(player,1);
             player_set_move_direction(player,MOVE_E);
             break;
+        case 32:
+            player_reload(player);
+            break;
         default:
             *quit = true;
             break;
@@ -156,9 +175,7 @@ void update_player(struct Player *player, struct Cross *cross,
     m_x = GCURX;
     m_y = GCURY;
     cross_set_position(cross,m_x,m_y);
-    player_update_postion(player);
     player_set_aim_direction(player,cross);
-    player_set_step(player);
 
 }
 UINT32 get_time() {

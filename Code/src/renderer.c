@@ -4,41 +4,61 @@
 #include "misc_b.h"
 #include "raster.h"
 #include "model.h"
+#include "font.h"
 
-UINT32 border_wall[32] = {
-                      0xFFFFFFFF,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0x80000001,
-                      0xFFFFFFFF
-};
+void render_stats(const struct Player *player, UINT32 *base) {
+    int health_lsb;
+    int health_msb;
+    int ammo_lsb;
+    int ammo_msb;
+    int magazine;
+    UINT8 *health_lsb_char;
+    UINT8 *health_msb_char;
+    UINT8 *ammo_lsb_char;
+    UINT8 *ammo_msb_char;
+    UINT8 *magazine_char;
+    UINT8 *slash_char;
+
+    health_lsb = player->health % 10;
+    health_msb = ( player->health / 10 ) % 10;
+
+    ammo_lsb = player->ammo %10;
+    ammo_msb = ( player->ammo / 10 ) % 10;
+
+    magazine = player->magazine;
+    health_lsb_char = GLYPH_START(health_lsb + '0');
+    health_msb_char = GLYPH_START(health_msb + '0');
+    ammo_lsb_char = GLYPH_START(ammo_lsb + '0');
+    ammo_msb_char = GLYPH_START(ammo_msb + '0');
+    magazine_char = GLYPH_START(magazine + '0');
+    slash_char = GLYPH_START('/');
+
+
+    plot_bitmap_8((UINT8 *)base,
+                  10,10,
+                  health_msb_char,
+                  8);
+    plot_bitmap_8((UINT8 *)base,
+                  18,10,
+                  health_lsb_char,
+                  8);
+    plot_bitmap_8((UINT8 *)base,
+                  598,382,
+                  magazine_char,
+                  8);
+    plot_bitmap_8((UINT8 *)base,
+                  606,382,
+                  slash_char,
+                  8);
+    plot_bitmap_8((UINT8 *)base,
+                  614,382,
+                  ammo_msb_char,
+                  8);
+    plot_bitmap_8((UINT8 *)base,
+                  622,382,
+                  ammo_lsb_char,
+                  8);
+}
 void render_player(const struct Player *player, UINT32 *base) {
     if (player->health > 0) {
         plot_bitmap_32(base,
