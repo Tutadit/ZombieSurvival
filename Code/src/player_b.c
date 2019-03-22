@@ -1,15 +1,17 @@
 #include "global.h"
 #include "player_b.h"
 
-const UINT32 PLAYER_DEAD[8] = {
-                               0x400800,
-                               0x8401000,
-                                0x4402000,
-                                0x2404000,
-                                0x17f8000,
-                                0x1e810000,
-                                0x13810000,
-                                0x1efffc00
+const UINT32 PLAYER_DEAD[10] = {
+                               0x400,
+                               0x8040800,
+                               0x4081000,
+                               0x2102000,
+                               0x1204000,
+                               0xfe8000,
+                               0x410000,
+                               0x1e810000,
+                               0x13810000,
+                               0x1efffc00
 };
 const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT] = {
                              0x38000,

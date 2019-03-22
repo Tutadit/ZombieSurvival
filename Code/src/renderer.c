@@ -76,7 +76,7 @@ void render_player(const struct Player *player, UINT32 *base) {
                        player->position_x,
                        player->position_y,
                        PLAYER_DEAD,
-                       8);
+                       10);
     }
 }
 
