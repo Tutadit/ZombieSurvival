@@ -2,6 +2,7 @@
 #define MAIN_GAME
 
 UINT32 get_time();
+void clear_screen(UINT32 *base);
 void initialize_game(struct Player *player,
                      struct Zombie *zombies[],
                      int total_zombies,

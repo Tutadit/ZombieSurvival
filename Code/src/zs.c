@@ -15,9 +15,29 @@
 #define MAX_ZOMBIES 15
 #define MAX_BULLETS 50
 
+UINT32 *base;
+UINT32 *base_back;
+UINT32 *back_buffer;
+
 int main() {
-    UINT32
-        timeThen,
+    UINT32 timeThen,
+        timeNow,
+        timeElapsed;
+    timeThen = 0;
+    while (true) {
+        timeNow = get_time();
+        printf("%x\n",timeNow);
+        timeElapsed = timeNow - timeThen;
+        if(timeElapsed > 0) {
+
+            timeThen = timeNow;
+        }
+    }
+
+    return 0;
+}
+int main2() {
+    UINT32 timeThen,
         timeNow,
         timeElapsed;
     bool quit = false;
@@ -27,86 +47,89 @@ int main() {
     struct Misc_Obj misc_obs[2];
     struct Bullet *bullets[MAX_BULLETS];
     int current_bullet_index = 0;
-    UINT32 *base = Physbase();
-    UINT32 *base_back = (UINT32 *) malloc(32255);
-    UINT32 *back_buffer;
-    int offset = (int) base_back % 256;
+    int offset;
     UINT32 *tmp;
-    UINT32 *og = base;
+    UINT32 *og;
     int key;
     int zombie_time = 0;
     int i;
+
+    base_back = (UINT32 *) malloc(32255);
+    base = Physbase();
+    back_buffer = base_back;
+    offset = (int) base_back % 256;
+    og = base;
     if ( offset !=0 ) {
         base_back += 256 - offset;
     }
-
     for(i = 0; i < MAX_BULLETS; i++) {
         bullets[i] = NULL;
     }
+
     linea0();
     initialize_game(&player,
                     zombies,
                     MAX_ZOMBIES,
                     misc_obs,
                     2);
+    timeThen = 0;
     while ( !quit ) {
-
-        if ( MOUSE_BT ) {
-            bullets[current_bullet_index] =
-                (struct Bullet *) malloc(sizeof(struct Bullet));
-            bullet_shoot(bullets[current_bullet_index],&player);
-            current_bullet_index++;
-            if ( current_bullet_index == MAX_BULLETS ) {
-                current_bullet_index = 0;
-            }
-        }
-
-
-        Vsync();
-
-        clear_screen(base_back);
-
-        render_player(&player,base_back);
-        render_stats(&player,base_back);
-        for(i = 0; i < MAX_BULLETS; i++ ) {
-            if(bullets[i] != NULL) {
-                if ( !bullet_update_position(bullets[i]) ) {
-                    render_bullet(bullets[i],base);
-                } else {
-                    free(bullets[i]);
-                    bullets[i] = NULL;
-                }
-            }
-        }
-        render_cross(&cross,base_back);
-        for (i = 0; i < MAX_ZOMBIES; i++) {
-            if(zombies[i] != NULL) {
-                render_zombie(zombies[i],base_back);
-            }
-        }
-
-        detect_collisions(bullets,zombies,&player,
-                          MAX_BULLETS,
-                          MAX_ZOMBIES);
-
-        tmp = Physbase();
-        Setscreen(-1,base_back,-1);
-        base_back = tmp;
-        update_player(&player,&cross, &quit);
 
         timeNow = get_time();
         timeElapsed = timeNow - timeThen;
-        if ( timeElapsed > 5 ) {
+        if ( timeElapsed > 0 ) {
+            if ( MOUSE_BT ) {
+                bullets[current_bullet_index] =
+                    (struct Bullet *) malloc(sizeof(struct Bullet));
+                bullet_shoot(bullets[current_bullet_index],&player);
+                current_bullet_index++;
+                if ( current_bullet_index == MAX_BULLETS ) {
+                    current_bullet_index = 0;
+                }
+            }
+            update_player(&player,&cross, &quit);
             player_update_postion(&player);
             player_set_step(&player);
-            timeThen = timeNow;
             zombie_time = ~zombie_time;
             if ( zombie_time ) {
                 update_zombies(zombies,&player);
             }
+            clear_screen(base_back);
+
+            render_player(&player,base_back);
+            render_stats(&player,base_back);
+            for(i = 0; i < MAX_BULLETS; i++ ) {
+                if(bullets[i] != NULL) {
+                    if ( !bullet_update_position(bullets[i]) ) {
+                        render_bullet(bullets[i],base);
+                    } else {
+                        free(bullets[i]);
+                        bullets[i] = NULL;
+                    }
+                }
+            }
+            render_cross(&cross,base_back);
+            for (i = 0; i < MAX_ZOMBIES; i++) {
+                if(zombies[i] != NULL) {
+                    render_zombie(zombies[i],base_back);
+                }
+            }
+
+            detect_collisions(bullets,zombies,&player,
+                              MAX_BULLETS,
+                              MAX_ZOMBIES);
+
+            tmp = Physbase();
+            Setscreen(-1,base_back,-1);
+            base_back = tmp;
+
+            timeThen = timeNow;
         }
     }
     Setscreen(-1,og,-1);
+    if ( offset !=0 ) {
+        base_back += 256 - offset;
+    }
     free(back_buffer);
     return 0;
 }
@@ -179,11 +202,11 @@ void update_player(struct Player *player, struct Cross *cross,
 
 }
 UINT32 get_time() {
-    long old_ssp;
-    UINT32 *timer = (UINT32 *) CLOCK;
+    UINT32 old_ssp;
+    UINT32 *timer = (UINT32 *) 0x462;
     UINT32 time;
     old_ssp = Super(0);
-    time = *timer;
+    time = (UINT32) *timer;
     Super(old_ssp);
     return time;
 }
