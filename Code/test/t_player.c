@@ -38,23 +38,23 @@ void test_player_render(UINT32 *base) {
         key = Cnecin();
         if (key == 119) {
             player.speed = 1;
-            player_set_move_direction(&player,3);
+            player_set_move_direction(&player,MOVE_S);
             y--;
         } else if (key == 115) {
             player.speed = 1;
-            player_set_move_direction(&player,1);
+            player_set_move_direction(&player,MOVE_N);
             y++;
         } else if (key == 97) {
             player.speed = 1;
-            player_set_move_direction(&player,0);
+            player_set_move_direction(&player,MOVE_W);
             x--;
         } else if (key == 100) {
             player.speed = 1;
-            player_set_move_direction(&player,2);
+            player_set_move_direction(&player,MOVE_E);
             x++;
         }
         fflush(stdout);
-        player_set_postion(&player,x,y);
+        player_update_postion(&player,x,y);
         player_set_aim_direction(&player, m_x,m_y);
         player.speed = 1;
         player_set_step(&player);
