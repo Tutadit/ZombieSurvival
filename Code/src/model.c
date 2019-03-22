@@ -115,8 +115,10 @@ bool player_take_damage(struct Player *player, int damage) {
     bool dead = false;
     if ( player->health <= damage ) {
         dead = true;
+        player->health = 0;
+    } else {
+        player->health =- damage;
     }
-    player->health =- damage;
     return dead;
 }
 
@@ -177,8 +179,10 @@ bool zombie_take_damage(struct Zombie * zombie, int damage ){
   bool dead = false;
     if(zombie->health <= damage){
         dead = true;
+        zombie->health = 0;
+    } else {
+        zombie->health -= damage;
     }
-    zombie->health -= damage;
     return dead;
 }
 
@@ -237,11 +241,19 @@ void cross_set_position(struct Cross *cross, int x, int y) {
 }
 
 void bullet_shoot(struct Bullet *bullet, struct Player *player) {
-    bullet->position_x = player->position_x + bullet_shooting_pos[player->aim_direction][0];
-    bullet->position_y = player->position_y + bullet_shooting_pos[player->aim_direction][1];
-    bullet->direction = player->aim_direction;
+    if(player->magazine > 0 ) {
+        bullet->position_x =
+            player->position_x
+            + bullet_shooting_pos[player->aim_direction][0];
+        bullet->position_y =
+            player->position_y
+            + bullet_shooting_pos[player->aim_direction][1];
+        bullet->direction = player->aim_direction;
+        bullet->hit = false;
+        player->magazine = player->magazine - 1;
+    }
 }
-void bullet_update_position(struct Bullet *bullet) {
+bool bullet_update_position(struct Bullet *bullet) {
     switch ( bullet->direction ) {
     case LOOK_N:
         bullet->position_y = bullet->position_y - 1;
@@ -271,5 +283,35 @@ void bullet_update_position(struct Bullet *bullet) {
         bullet->position_x = bullet->position_x + 1;
         bullet->position_y = bullet->position_y - 1;
         break;
+    }
+    return ( bullet->position_y < 0 || bullet->position_x < 0 || bullet->hit );
+}
+
+void detect_collisions(struct Bullet *bullets[],
+                       struct Zombie *zombies[],
+                       struct Player *player,
+                       int total_b, int total_z) {
+    int i;
+    int j;
+
+    for ( i = 0; i < total_z; i++ ) {
+        if (player->position_x <= zombies[i]->position_x + 20 &&
+            player->position_x + 18 >= zombies[i]->position_x &&
+            player->position_y <= zombies[i]->position_y + 24 &&
+            19 + player->position_y >= zombies[i]->position_y) {
+            player_take_damage(player,zombies[i]->strength);
+        }
+
+        for (j = 0; j < total_b; j++ ) {
+            if (bullets[j] != NULL) {
+                if (bullets[j]->position_x <= zombies[i]->position_x + 20 &&
+                    bullets[j]->position_x + 1 >= zombies[i]->position_x &&
+                    bullets[j]->position_y <= zombies[i]->position_y + 24 &&
+                    1 + bullets[j]->position_y >= zombies[i]->position_y) {
+                    zombie_take_damage(zombies[i],1);
+                    bullets[j]->hit = true;
+                }
+            }
+        }
     }
 }

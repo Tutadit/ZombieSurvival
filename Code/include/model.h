@@ -6,13 +6,13 @@
 #define PLAYER_START_HEALTH 100
 #define PLAYER_START_SPEED 0
 #define PLAYER_START_MAX_SPEED 3
-#define PLAYER_START_MAGAZINE 8
-#define PLAYER_START_MAX_MAGAZINE 8
+#define PLAYER_START_MAGAZINE 50
+#define PLAYER_START_MAX_MAGAZINE 50
 #define PLAYER_START_AIM_DIRECTION 0
 #define PLAYER_START_MOVE_DIRECTION 0
 #define PLAYER_START_STEP 0
 
-#define ZOMBIE_START_HEALTH 100
+#define ZOMBIE_START_HEALTH 1
 #define ZOMBIE_START_SPEED 1
 #define ZOMBIE_START_MAX_SPEED 3
 #define ZOMBIE_START_STRENGTH 3
@@ -40,6 +40,7 @@ struct Bullet {
     int position_x;
     int position_y;
     unsigned int direction;
+    bool hit;
 };
 
 struct Cross {
@@ -85,7 +86,10 @@ void zombie_set_step(struct Zombie *zombie);
 void misc_set_postion(struct Misc_Obj *obj, int x, int y);
 void misc_set_index(struct Misc_Obj *obj, int index);
 void bullet_shoot(struct Bullet *bullet, struct Player *player);
-void bullet_update_position(struct Bullet *bullet);
+bool bullet_update_position(struct Bullet *bullet);
 void cross_set_position(struct Cross *cross, int x, int y);
-
+void detect_collisions(struct Bullet *bullets[],
+                       struct Zombie *zombies[],
+                       struct Player *player,
+                       int total_b, int total_z);
 #endif
