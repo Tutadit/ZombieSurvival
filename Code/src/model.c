@@ -21,6 +21,24 @@ const int bullet_shooting_pos[8][2] = {
                        20,2  /* NE */
     };
 
+int game_wave(struct Game *game) {
+    return game->wave;
+}
+void game_next_wave(struct Game *game) {
+    game->wave = game->wave + 1;
+}
+void game_over(struct Game *game) {
+    game->over = true;
+}
+bool is_game_over(struct Game *game) {
+    return game->over;
+}
+
+void start_game(struct Game *game) {
+    game->wave = GAME_START_WAVE;
+    game->over = GAME_START_OVER;
+}
+
 void player_spawn(struct Player *player) {
     player->position_x = PLAYER_START_X;
     player->position_y = PLAYER_START_Y;
@@ -34,6 +52,7 @@ void player_spawn(struct Player *player) {
     player->aim_direction = PLAYER_START_AIM_DIRECTION;
     player->move_direction = PLAYER_START_MOVE_DIRECTION;
     player->step = PLAYER_START_STEP;
+    player->score = PLAYER_START_SCORE;
 }
 
 void zombie_spawn(struct Zombie *zombie) {
@@ -42,7 +61,7 @@ void zombie_spawn(struct Zombie *zombie) {
         zombie->position_y = -32;
     } else {
         zombie->position_x = -32;
-        zombie->position_y = (rand() % 640);
+        zombie->position_y = (rand() % 400);
     }
     zombie->health = ZOMBIE_START_HEALTH;
     zombie->speed = ZOMBIE_START_SPEED;
@@ -130,15 +149,12 @@ void player_set_speed(struct Player *player, int speed) {
     }
 }
 
-bool player_take_damage(struct Player *player, unsigned int damage) {
-    bool dead = false;
+void player_take_damage(struct Player *player, unsigned int damage) {
     if ( player->health <= damage ) {
-        dead = true;
         player->health = 0;
     } else {
         player->health -= damage;
     }
-    return dead;
 }
 
 void player_reload(struct Player *player) {
@@ -171,6 +187,14 @@ void player_set_step(struct Player *player) {
     }
 }
 
+void player_score(struct Player *player) {
+    player->score = player->score + 1;
+}
+
+bool player_alive(struct Player *player) {
+    return player->health > 0;
+}
+
 void zombie_set_speed(struct Zombie *zombie, int speed){
     if(speed <= zombie->max_speed){
       zombie->speed = speed;
@@ -199,15 +223,12 @@ void zombie_strength(struct Zombie *zombie, int strength){
     zombie->strength = strength;
 }
 
-bool zombie_take_damage(struct Zombie * zombie, int damage ){
-  bool dead = false;
+void zombie_take_damage(struct Zombie * zombie, int damage ){
     if(zombie->health <= damage){
-        dead = true;
         zombie->health = 0;
     } else {
         zombie->health -= damage;
     }
-    return dead;
 }
 
 void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
@@ -254,13 +275,8 @@ void zombie_set_step(struct Zombie *zombie) {
     }
 }
 
-void misc_set_postion(struct Misc_Obj *obj, int x, int y) {
-    obj->position_x = x;
-    obj->position_y = y;
-}
-
-void misc_set_index(struct Misc_Obj *obj, int index) {
-    obj->index = index;
+bool zombie_alive(struct Zombie *zombie) {
+    return zombie->health > 0;
 }
 
 void cross_set_position(struct Cross *cross, int x, int y) {
@@ -315,14 +331,13 @@ bool bullet_update_position(struct Bullet *bullet) {
     return ( bullet->position_y < 0 || bullet->position_x < 0 || bullet->hit );
 }
 
-void detect_collisions(struct Bullet *bullets[],
-                       struct Zombie *zombies[],
-                       struct Player *player,
-                       int total_b, int total_z) {
+void detect_collisions(struct GameModel *game_model) {
     int i;
     int j;
-
-    for ( i = 0; i < total_z; i++ ) {
+    struct Player *player = game_model->player;
+    struct Zombie *zombies[ABSOLUTE_MAX_ZOMBIES] = game_model->zombies;
+    struct Bullet *bullets[ABSOLUTE_MAX_BULLETS] = game_model->bullets;
+    for ( i = 0; i < game_model->current_zombie_index; i++ ) {
         if (zombies[i] != NULL) {
             if (player->position_x <= zombies[i]->position_x + 20 &&
                 player->position_x + 18 >= zombies[i]->position_x &&
@@ -331,7 +346,7 @@ void detect_collisions(struct Bullet *bullets[],
                 player_take_damage(player,zombies[i]->strength);
             }
 
-            for (j = 0; j < total_b; j++ ) {
+            for (j = 0; j < game_model->current_bullet_index; j++ ) {
                 if (bullets[j] != NULL) {
                     if (bullets[j]->position_x <= zombies[i]->position_x + 20 &&
                         bullets[j]->position_x + 1 >= zombies[i]->position_x &&

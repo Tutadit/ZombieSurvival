@@ -1,7 +1,43 @@
 #include <stdlib.h>
 #include "global.h"
 #include "raster.h"
+#include "font.h"
 
+void plot_chars(UINT8 *base, int x, int y, char *chars, int size) {
+    int i;
+    int x_offset = 0;
+    for (i = 0; i < size; i++) {
+        plot_bitmap_8((UINT8 *)base,
+                      x + x_offset,y,
+                      GLYPH_START(chars[i]),
+                      8);
+    }
+}
+int number_of_digits(int num) {
+    int count = 0;
+    while(num != 0){
+        count++;
+        num /= 10;
+    }
+    return count;
+}
+void plot_number(UINT8 *base, int x, int y, int number) {
+    int current_digit;
+    int rest_of_number;
+    int x_offset = ( number_of_digits(number) - 1 ) * 8;
+    current_digit = number % 10;
+    rest_of_number = number / 10;
+    while ( current_digit != 0 || rest_of_number != 0 || number == 0 ) {
+        plot_bitmap_8((UINT8 *)base,
+                      x + x_offset,y,
+                      GLYPH_START(current_digit + '0'),
+                      8);
+        current_digit = rest_of_number % 10;
+        rest_of_number = rest_of_number / 10;
+        x_offset -= 8;
+        number = 1;
+    }
+}
 void plot_pixel(UINT8 *base, int x, int y) {
     if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
         *(base + y * 80 + (x >> 3)) |= 1 << 7 - (x & 7);

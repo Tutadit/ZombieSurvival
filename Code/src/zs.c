@@ -12,33 +12,28 @@
 #include "zs.h"
 
 #define CLOCK 0x462
-#define MAX_ZOMBIES 15
+#define MAX_ZOMBIES 200
 #define MAX_BULLETS 50
 
 UINT32 *base;
 UINT32 *base_back;
 UINT32 *back_buffer;
+UINT32 *tmp;
+UINT32 *og;
 
 int main() {
+
     UINT32 timeThen,
         timeNow,
         timeElapsed;
-    bool quit = false;
-    struct Player player;
-    struct Zombie *zombies[MAX_ZOMBIES];
-    struct Cross cross;
-    struct Misc_Obj misc_obs[2];
-    struct Bullet *bullets[MAX_BULLETS];
-    int current_bullet_index = 0;
     int offset;
-    UINT32 *tmp;
-    UINT32 *og;
-    int key;
+    struct GameModel game_model;
+
     int i;
     int mouse_status;
-    bool shot = false;
     int zombie_timer = 0;
     int player_timer = 0;
+
     base_back = (UINT32 *) malloc(32255);
     base = Physbase();
     back_buffer = base_back;
@@ -47,77 +42,45 @@ int main() {
     if ( offset !=0 ) {
         base_back += 256 - offset;
     }
-    for(i = 0; i < MAX_BULLETS; i++) {
-        bullets[i] = NULL;
-    }
 
     linea0();
-    initialize_game(&player,
-                    zombies,
-                    MAX_ZOMBIES,
-                    misc_obs,
-                    2);
+
+    initialize_game(&game_model);
+
     timeThen = get_time();
     timeNow = get_time();
-    while ( !quit ) {
-        timeElapsed = timeNow - timeThen;
-        timeNow = get_time();
-        if ( timeElapsed > 0 ) {
 
+    while ( !is_game_over(game_model.game) ) {
+
+        timeNow = get_time();
+        timeElapsed = timeNow - timeThen;
+
+        if ( timeElapsed > 0 ) {
             mouse_status = MOUSE_BT;
-            if ( mouse_status << 15 && !shot) {
-                bullets[current_bullet_index] =
-                    (struct Bullet *) malloc(sizeof(struct Bullet));
-                bullet_shoot(bullets[current_bullet_index],&player);
-                current_bullet_index++;
-                if ( current_bullet_index == MAX_BULLETS ) {
-                    current_bullet_index = 0;
-                }
-                shot = true;
-            } else {
-                shot = false;
+            if ( mouse_status << 15 ) {
+                shoot(&game_model);
             }
 
+            if ( update_player(&game_model) ){
+                game_over(game_model.game);
+            }
 
-            update_player(&player,&cross, &quit);
             player_timer++;
             if ( player_timer  > 1 ) {
-                player_update_postion(&player);
-                player_set_step(&player);
+                update_player_timed(&game_model);
                 player_timer = 0;
             }
 
             zombie_timer++;
             if ( zombie_timer  > 2 ) {
-                update_zombies(zombies,&player);
+                update_zombies_timed(&game_model);
                 zombie_timer = 0;
             }
 
-            detect_collisions(bullets,zombies,&player,
-                              MAX_BULLETS,
-                              MAX_ZOMBIES);
+            detect_collisions(&game_model);
+
             clear_screen(base_back);
-
-            render_player(&player,base_back);
-            render_stats(&player,base_back);
-
-            for(i = 0; i < current_bullet_index; i++ ) {
-                if(bullets[i] != NULL) {
-                    if ( !bullet_update_position(bullets[i]) ) {
-                        render_bullet(bullets[i],base);
-                    } else {
-                        free(bullets[i]);
-                        bullets[i] = NULL;
-                    }
-                }
-            }
-
-            render_cross(&cross,base_back);
-            for (i = 0; i < MAX_ZOMBIES; i++) {
-                if(zombies[i] != NULL) {
-                    render_zombie(zombies[i],base_back);
-                }
-            }
+            render_game(&game_model,base_back);
 
             tmp = Physbase();
             Setscreen(-1,base_back,-1);
@@ -125,41 +88,82 @@ int main() {
             timeThen = get_time();
         }
     }
+
+    end_game(&game_model);
+
     Setscreen(-1,og,-1);
     free(back_buffer);
     return 0;
 }
 
-void initialize_game(struct Player *player,
-                     struct Zombie *zombies[],
-                     int total_zombies,
-                     struct Misc_Obj *misc_objs,
-                     int total_misc) {
-    int i;
-    player_spawn(player);
-    for(i = 0; i < total_zombies; i++) {
-        zombies[i] = (struct Zombie*) malloc(sizeof(struct Zombie));
-        zombie_spawn(zombies[i]);
-    }
+void initialize_game(struct GameModel *game_model) {
+    game_model->game = (struct Game *) malloc(sizeof(struct Game));
+    game_model->player = (struct Player *) malloc(sizeof(struct Player));
+    game_model->cross = (struct Cross *) malloc(sizeof(struct Cross));
+    game_model->current_zombie_index = 0;
+    game_model->current_bullet_index = 0;
+
+    start_game(game_model->game);
+    player_spawn(game_model->player);
+    spawn_zombies(game_model);
 }
 
-void update_zombies(struct Zombie *zombies[], struct Player *player) {
+void end_game(struct GameModel *game_model) {
     int i;
-    for(i = 0; i < MAX_ZOMBIES; i++) {
-        if (zombies[i] != NULL) {
-            if (zombies[i]->health > 0 ) {
-                zombie_set_direction(zombies[i],player);
-                zombie_update_position(zombies[i]);
-                zombie_set_step(zombies[i]);
-            } else {
-                free(zombies[i]);
-                zombies[i] = NULL;
-            }
+    free(game_model->game);
+    game_model->game = NULL;
+    free(game_model->player);
+    game_model->player = NULL;
+    free(game_model->cross);
+    game_model->cross = NULL;
+
+    for( i = 0; i < ABSOLUTE_MAX_ZOMBIES; i++ ) {
+        if(game_model->zombies[i] != NULL) {
+            free(game_model->zombies[i]);
+            game_model->zombies[i] = NULL;
+        }
+    }
+
+    for( i = 0; i < ABSOLUTE_MAX_BULLETS; i++ ) {
+        if(game_model->bullets[i] != NULL) {
+            free(game_model->bullets[i]);
+            game_model->bullets[i] = NULL;
         }
     }
 }
-void update_player(struct Player *player, struct Cross *cross,
-                   bool *quit) {
+
+void spawn_zombies(struct GameModel *game_model) {
+    int i;
+    int total_zombies = game_wave(game_model->game) * ZOMBIES_PER_WAVE_NUMBER;
+    game_model->current_zombie_index = 0;
+    for(i = 0; i < total_zombies; i++) {
+        game_model->zombies[i] = (struct Zombie*) malloc(sizeof(struct Zombie));
+        zombie_spawn(game_model->zombies[i]);
+        game_model->current_zombie_index = game_model->current_zombie_index + 1;
+    }
+}
+
+bool update_zombies(struct GameModel *game_model) {
+    int i;
+    bool all_dead = true;
+    for(i = 0; i < game_model->current_zombie_index; i++) {
+        if (game_model->zombies[i] != NULL) {
+            if ( zombie_alive(game_model->zombies[i]) ) {
+                zombie_set_direction(game_model->zombies[i],
+                                     game_model->player);
+                zombie_update_position(game_model->zombies[i]);
+                zombie_set_step(game_model->zombies[i]);
+                all_dead = false;
+            } else {
+                player_score(game_model->player);
+                free(game_model->zombies[i]);
+                game_model->zombies[i] = NULL;
+            }
+        }
+    }
+    return all_dead;
+}
+bool update_player(struct GameModel *game_model) {
     int m_x;
     int m_y;
     int key;
@@ -167,36 +171,96 @@ void update_player(struct Player *player, struct Cross *cross,
         key = Cnecin();
         switch ( key ) {
         case 119:
-            player_set_speed(player,1);
-            player_set_move_direction(player,MOVE_N);
+            player_set_speed(game_model->player,1);
+            player_set_move_direction(game_model->player,MOVE_N);
             break;
         case 115:
-            player_set_speed(player,1);
-            player_set_move_direction(player,MOVE_S);
+            player_set_speed(game_model->player,1);
+            player_set_move_direction(game_model->player,MOVE_S);
             break;
         case 97:
-            player_set_speed(player,1);
-            player_set_move_direction(player,MOVE_W);
+            player_set_speed(game_model->player,1);
+            player_set_move_direction(game_model->player,MOVE_W);
             break;
         case 100:
-            player_set_speed(player,1);
-            player_set_move_direction(player,MOVE_E);
+            player_set_speed(game_model->player,1);
+            player_set_move_direction(game_model->player,MOVE_E);
             break;
         case 32:
-            player_reload(player);
+            player_reload(game_model->player);
             break;
         default:
-            *quit = true;
+
             break;
         }
     }
 
     m_x = GCURX;
     m_y = GCURY;
-    cross_set_position(cross,m_x,m_y);
-    player_set_aim_direction(player,cross);
+    cross_set_position(game_model->cross,m_x,m_y);
+    player_set_aim_direction(game_model->player,game_model->cross);
+    return !player_alive(game_model->player);
+}
+
+void update_player_timed(struct GameModel *game_model) {
+    player_update_postion(game_model->player);
+    player_set_step(game_model->player);
+}
+
+void update_zombies_timed(struct GameModel *game_model) {
+    if ( update_zombies(game_model) ) {
+        game_next_wave(game_model->game);
+        player_max_ammo(game_model->player);
+        spawn_zombies(game_model);
+    }
+}
+
+void shoot(struct GameModel *game_model) {
+    game_model->bullets[game_model->current_bullet_index] =
+        (struct Bullet *) malloc(sizeof(struct Bullet));
+    bullet_shoot(
+                 game_model->bullets[game_model->current_bullet_index],
+                 game_model->player);
+    game_model->current_bullet_index++;
+    if ( game_model->current_bullet_index == MAX_BULLETS ) {
+        game_model->current_bullet_index = 0;
+    }
 
 }
+
+void render_game(struct GameModel *game_model, UINT32 *base) {
+    render_player(game_model->player,base);
+    render_stats(game_model->player,game_model->game,base);
+    render_cross(game_model->cross,base);
+    render_zombies(game_model,base);
+    render_bullets(game_model,base);
+}
+
+void render_zombies(struct GameModel *game_model, UINT32 *base) {
+    int i;
+    for (i = 0; i < game_model->current_zombie_index; i++) {
+        if(game_model->zombies[i] != NULL) {
+            render_zombie(game_model->zombies[i],base);
+        }
+    }
+
+}
+
+void render_bullets(struct GameModel *game_model, UINT32 *base) {
+    int i;
+    for(i = 0; i < game_model->current_bullet_index; i++ ) {
+        if(game_model->bullets[i] != NULL) {
+            if ( !bullet_update_position(game_model->bullets[i]) ) {
+                render_bullet(game_model->bullets[i],base);
+            } else {
+                free(game_model->bullets[i]);
+                game_model->bullets[i] = NULL;
+            }
+        }
+    }
+
+}
+
 UINT32 get_time() {
     UINT32 old_ssp;
     UINT32 *timer = (UINT32 *) CLOCK;
