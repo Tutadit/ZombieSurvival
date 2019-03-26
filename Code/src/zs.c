@@ -50,7 +50,7 @@ int main() {
     timeThen = get_time();
     timeNow = get_time();
 
-    while ( !is_game_over(game_model.game) ) {
+    while ( !is_game_over(&game_model) ) {
 
         timeNow = get_time();
         timeElapsed = timeNow - timeThen;
@@ -62,7 +62,7 @@ int main() {
             }
 
             if ( update_player(&game_model) ){
-                game_over(game_model.game);
+                game_over(&game_model);
             }
 
             player_timer++;
@@ -103,7 +103,7 @@ void initialize_game(struct GameModel *game_model) {
     game_model->current_zombie_index = 0;
     game_model->current_bullet_index = 0;
 
-    start_game(game_model->game);
+    start_game(game_model);
     player_spawn(game_model->player);
     spawn_zombies(game_model);
 }
@@ -134,7 +134,7 @@ void end_game(struct GameModel *game_model) {
 
 void spawn_zombies(struct GameModel *game_model) {
     int i;
-    int total_zombies = game_wave(game_model->game) * ZOMBIES_PER_WAVE_NUMBER;
+    int total_zombies = game_wave(game_model) * ZOMBIES_PER_WAVE_NUMBER;
     game_model->current_zombie_index = 0;
     for(i = 0; i < total_zombies; i++) {
         game_model->zombies[i] = (struct Zombie*) malloc(sizeof(struct Zombie));
@@ -144,9 +144,10 @@ void spawn_zombies(struct GameModel *game_model) {
 }
 
 bool update_zombies(struct GameModel *game_model) {
+    int up_by = rand() % 2 + 1;
     int i;
     bool all_dead = true;
-    for(i = 0; i < game_model->current_zombie_index; i++) {
+    for(i = 0; i < game_model->current_zombie_index; i+= up_by) {
         if (game_model->zombies[i] != NULL) {
             if ( zombie_alive(game_model->zombies[i]) ) {
                 zombie_set_direction(game_model->zombies[i],
@@ -155,7 +156,7 @@ bool update_zombies(struct GameModel *game_model) {
                 zombie_set_step(game_model->zombies[i]);
                 all_dead = false;
             } else {
-                player_score(game_model->player);
+                player_score(game_model);
                 free(game_model->zombies[i]);
                 game_model->zombies[i] = NULL;
             }
@@ -171,23 +172,23 @@ bool update_player(struct GameModel *game_model) {
         key = Cnecin();
         switch ( key ) {
         case 119:
-            player_set_speed(game_model->player,1);
-            player_set_move_direction(game_model->player,MOVE_N);
+            player_set_speed(game_model,1);
+            player_set_move_direction(game_model,MOVE_N);
             break;
         case 115:
-            player_set_speed(game_model->player,1);
-            player_set_move_direction(game_model->player,MOVE_S);
+            player_set_speed(game_model,1);
+            player_set_move_direction(game_model,MOVE_S);
             break;
         case 97:
-            player_set_speed(game_model->player,1);
-            player_set_move_direction(game_model->player,MOVE_W);
+            player_set_speed(game_model,1);
+            player_set_move_direction(game_model,MOVE_W);
             break;
         case 100:
-            player_set_speed(game_model->player,1);
-            player_set_move_direction(game_model->player,MOVE_E);
+            player_set_speed(game_model,1);
+            player_set_move_direction(game_model,MOVE_E);
             break;
         case 32:
-            player_reload(game_model->player);
+            player_reload(game_model);
             break;
         default:
 
@@ -198,19 +199,19 @@ bool update_player(struct GameModel *game_model) {
     m_x = GCURX;
     m_y = GCURY;
     cross_set_position(game_model->cross,m_x,m_y);
-    player_set_aim_direction(game_model->player,game_model->cross);
-    return !player_alive(game_model->player);
+    player_set_aim_direction(game_model);;
+    return !player_alive(game_model);
 }
 
 void update_player_timed(struct GameModel *game_model) {
-    player_update_postion(game_model->player);
-    player_set_step(game_model->player);
+    player_update_postion(game_model);
+    player_set_step(game_model);
 }
 
 void update_zombies_timed(struct GameModel *game_model) {
     if ( update_zombies(game_model) ) {
-        game_next_wave(game_model->game);
-        player_max_ammo(game_model->player);
+        game_next_wave(game_model);
+        player_max_ammo(game_model);
         spawn_zombies(game_model);
     }
 }

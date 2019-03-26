@@ -1,6 +1,7 @@
 #include "global.h"
 #include "player_b.h"
 #include "zombie_b.h"
+#include "misc_b.h"
 #include "model.h"
 
 #include <stdio.h>
@@ -21,20 +22,25 @@ const int bullet_shooting_pos[8][2] = {
                        20,2  /* NE */
     };
 
-int game_wave(struct Game *game) {
+int game_wave(struct GameModel *game_model) {
+    struct Game *game = game_model->game;
     return game->wave;
 }
-void game_next_wave(struct Game *game) {
+void game_next_wave(struct GameModel *game_model) {
+    struct Game *game = game_model->game;
     game->wave = game->wave + 1;
 }
-void game_over(struct Game *game) {
+void game_over(struct GameModel *game_model) {
+    struct Game *game = game_model->game;
     game->over = true;
 }
-bool is_game_over(struct Game *game) {
+bool is_game_over(struct GameModel *game_model) {
+    struct Game *game = game_model->game;
     return game->over;
 }
 
-void start_game(struct Game *game) {
+void start_game(struct GameModel *game_model) {
+    struct Game *game = game_model->game;
     game->wave = GAME_START_WAVE;
     game->over = GAME_START_OVER;
 }
@@ -71,7 +77,8 @@ void zombie_spawn(struct Zombie *zombie) {
     zombie->step = ZOMBIE_START_STEP;
 }
 
-void player_update_postion(struct Player *player) {
+void player_update_postion(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     if (player->speed > 0 && player->health > 0) {
         switch ( player->move_direction ) {
         case MOVE_W:
@@ -101,7 +108,9 @@ void player_update_postion(struct Player *player) {
         }
     }
 }
-void player_set_aim_direction(struct Player *player, struct Cross *cross) {
+void player_set_aim_direction(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
+    struct Cross *cross = game_model->cross;
     int delta_x = cross->position_x - player->position_x;
     int delta_y = player->position_y - cross->position_y;
     int direction = LOOK_E;
@@ -139,17 +148,20 @@ void player_set_aim_direction(struct Player *player, struct Cross *cross) {
     player->aim_direction = direction;
 }
 
-void player_set_move_direction(struct Player *player, int direction) {
+void player_set_move_direction(struct GameModel *game_model, int direction) {
+    struct Player *player = game_model->player;
     player->move_direction = direction;
 }
 
-void player_set_speed(struct Player *player, int speed) {
+void player_set_speed(struct GameModel *game_model, int speed) {
+    struct Player *player = game_model->player;
     if( speed <= player->max_speed ) {
         player->speed = speed;
     }
 }
 
-void player_take_damage(struct Player *player, unsigned int damage) {
+void player_take_damage(struct GameModel *game_model, int damage) {
+    struct Player *player = game_model->player;
     if ( player->health <= damage ) {
         player->health = 0;
     } else {
@@ -157,7 +169,8 @@ void player_take_damage(struct Player *player, unsigned int damage) {
     }
 }
 
-void player_reload(struct Player *player) {
+void player_reload(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     int ammo_needed;
     ammo_needed = player->max_magazine - player->magazine;
     if ( ammo_needed > 0 && player->ammo > 0) {
@@ -171,11 +184,13 @@ void player_reload(struct Player *player) {
     }
 }
 
-void player_max_ammo(struct Player *player) {
+void player_max_ammo(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     player->ammo = player->max_ammo;
 }
 
-void player_set_step(struct Player *player) {
+void player_set_step(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     if(player->speed > 0) {
         if(player->step == PLAYER_TOTAL_STEPS - 1) {
             player->step = 0;
@@ -187,13 +202,16 @@ void player_set_step(struct Player *player) {
     }
 }
 
-void player_score(struct Player *player) {
+void player_score(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     player->score = player->score + 1;
 }
 
-bool player_alive(struct Player *player) {
+bool player_alive(struct GameModel *game_model) {
+    struct Player *player = game_model->player;
     return player->health > 0;
 }
+
 
 void zombie_set_speed(struct Zombie *zombie, int speed){
     if(speed <= zombie->max_speed){
@@ -219,7 +237,7 @@ void zombie_update_position(struct Zombie *zombie) {
         }
     }
 }
-void zombie_strength(struct Zombie *zombie, int strength){
+void zombie_set_strength(struct Zombie *zombie, int strength){
     zombie->strength = strength;
 }
 
@@ -339,19 +357,27 @@ void detect_collisions(struct GameModel *game_model) {
     struct Bullet *bullets[ABSOLUTE_MAX_BULLETS] = game_model->bullets;
     for ( i = 0; i < game_model->current_zombie_index; i++ ) {
         if (zombies[i] != NULL) {
-            if (player->position_x <= zombies[i]->position_x + 20 &&
-                player->position_x + 18 >= zombies[i]->position_x &&
-                player->position_y <= zombies[i]->position_y + 24 &&
-                19 + player->position_y >= zombies[i]->position_y) {
-                player_take_damage(player,zombies[i]->strength);
+            if (collided (player->position_x,
+                          player->position_y,
+                          PLAYER_HEIGHT,
+                          PLAYER_WIDTH,
+                          zombies[i]->position_x,
+                          zombies[i]->position_y,
+                          ZOMBIE_HEIGHT,
+                          ZOMBIE_WIDTH) ) {
+                player_take_damage(game_model,zombies[i]->strength);
             }
 
             for (j = 0; j < game_model->current_bullet_index; j++ ) {
                 if (bullets[j] != NULL) {
-                    if (bullets[j]->position_x <= zombies[i]->position_x + 20 &&
-                        bullets[j]->position_x + 1 >= zombies[i]->position_x &&
-                        bullets[j]->position_y <= zombies[i]->position_y + 24 &&
-                        1 + bullets[j]->position_y >= zombies[i]->position_y) {
+                    if (collided (bullets[j]->position_x,
+                                  bullets[j]->position_y,
+                                  BULLET_WIDTH,
+                                  BULLET_HEIGHT,
+                                  zombies[i]->position_x,
+                                  zombies[i]->position_y,
+                                  ZOMBIE_HEIGHT,
+                                  ZOMBIE_WIDTH) ) {
                         zombie_take_damage(zombies[i],1);
                         bullets[j]->hit = true;
                     }
@@ -359,4 +385,15 @@ void detect_collisions(struct GameModel *game_model) {
             }
         }
     }
+}
+
+bool collided (int x1, int y1, int h1, int w1, int x2, int y2, int h2, int w2) {
+    bool collided = false;
+    if (x1 <= x2 + w2 &&
+        x1 + w1 >= x2 &&
+        y1 <= y2 + h2 &&
+        y1 + h1 >= y2) {
+        collided = true;
+    }
+    return collided;
 }

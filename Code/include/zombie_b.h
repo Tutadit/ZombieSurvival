@@ -2,6 +2,7 @@
 #define ZOMBIE_ZS
 
 #define ZOMBIE_HEIGHT 24
+#define ZOMBIE_WIDTH 20
 #define ZOMBIE_TOTAL_STEPS 4
 #define ZOMBIE_STEPS_STOP_NUMBER 1
 

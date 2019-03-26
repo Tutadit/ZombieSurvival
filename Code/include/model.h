@@ -88,36 +88,37 @@ struct GameModel {
 
 };
 
-void start_game(struct Game *game);
-int game_wave(struct Game *game);
-void game_next_wave(struct Game *game);
-void game_over(struct Game *game);
-bool is_game_over(struct Game *game);
+void start_game(struct GameModel *game_model);
+int game_wave(struct GameModel *game_model);
+void game_next_wave(struct GameModel *game_model);
+void game_over(struct GameModel *game_model);
+bool is_game_over(struct GameModel *game_model);
 
 void player_spawn(struct Player *player);
 void zombie_spawn(struct Zombie *zombie);
-void player_update_postion(struct Player *player);
-void player_set_aim_direction(struct Player *player, struct Cross *cross);
-void player_set_move_direction(struct Player *player, int direction);
-void player_set_step(struct Player *player);
-void player_set_speed(struct Player *player, int speed);
-void player_take_damage(struct Player *player, unsigned int damage);
-void player_reload(struct Player *player);
-void player_max_ammo(struct Player *player);
-void player_score(struct Player *player);
-bool player_alive(struct Player *player);
+
+void player_update_postion(struct GameModel *game_model);
+void player_set_aim_direction(struct GameModel *game_model);
+void player_set_move_direction(struct GameModel *game_model, int direction);
+void player_set_step(struct GameModel *game_model);
+void player_set_speed(struct GameModel *game_model, int speed);
+void player_take_damage(struct GameModel *game_model, int damage);
+void player_reload(struct GameModel *game_model);
+void player_max_ammo(struct GameModel *game_model);
+void player_score(struct GameModel *game_model);
+bool player_alive(struct GameModel *game_model);
 
 void zombie_update_position(struct Zombie *zombie);
 void zombie_set_speed(struct Zombie *zombie, int speed);
-void zombie_strength(struct Zombie *zombie, int strength);
+void zombie_set_strength(struct Zombie *zombie, int strength);
 void zombie_take_damage(struct Zombie * zombie, int damage );
 void zombie_set_direction(struct Zombie * zombie, struct Player *player);
 bool zombie_alive(struct Zombie *zombie);
-
 void zombie_set_step(struct Zombie *zombie);
 
 void bullet_shoot(struct Bullet *bullet, struct Player *player);
 bool bullet_update_position(struct Bullet *bullet);
 void cross_set_position(struct Cross *cross, int x, int y);
 void detect_collisions(struct GameModel *game_model);
+bool collided (int x1, int y1, int h1, int w1, int x2, int y2, int h2, int w2);
 #endif
