@@ -7,38 +7,90 @@
 #include "model.h"
 #include "renderer.h"
 #include "zombie_b.h"
+#include "player_b.h"
 #include "t_render.h"
+
+#define TOTAL_ZOMBIES 7
 
 void test_renderer(UINT32 *base) {
     struct Player player;
-    struct Zombie zombie01;
-    struct Zombie zombie02;
-    struct Zombie zombie03;
+    struct Zombie zombies[TOTAL_ZOMBIES];
+    struct Cross cross;
+    UINT32 *base_back = (UINT32 *) malloc(32255);
+    int offset = (int) base_back % 256;
+    UINT32 *tmp;
+    UINT32 *og = base;
+    int positions[TOTAL_ZOMBIES][2] = {
+                                       30,30,
+                                       200,30,
+                                       400,30,
+                                       30,200,
+                                       30,350,
+                                       200,350,
+                                       400,350
+    };
+    int m_x;
+    int m_y;
+    int key;
+    int i;
+    bool loop = true;
+    if ( offset !=0 ) {
+        base_back += 256 - offset;
+    }
+    linea0();
+    player_spawn(&player);
+    for(i = 0; i < TOTAL_ZOMBIES; i++) {
+        zombie_spawn(&zombies[i],positions[i][0],positions[i][1]);
+        zombie_set_direction(&zombies[i],&player);
+    }
 
-    clear_screen(base);
-    player_set_postion(&player, 100,200);
-    player_set_aim_direction(&player, 1,1);
-    player_set_move_direction(&player,0);
-    player.speed = 0;
-    player_set_step(&player);
+    while(loop) {
+        m_x = GCURX;
+        m_y = GCURY;
+        cross_set_position(&cross,m_x,m_y);
+        if( Cconis()) {
+            key = Cnecin();
+            switch ( key ) {
+            case 119:
+                player_set_speed(&player,1);
+                player_set_move_direction(&player,MOVE_N);
+                break;
+            case 115:
+                player_set_speed(&player,1);
+                player_set_move_direction(&player,MOVE_S);
+                break;
+            case 97:
+                player_set_speed(&player,1);
+                player_set_move_direction(&player,MOVE_W);
+                break;
+            case 100:
+                player_set_speed(&player,1);
+                player_set_move_direction(&player,MOVE_E);
+                break;
+            default:
+                loop = false;
+                break;
+            }
+        }
+        /*player_set_speed(&player,0);*/
+        player_update_postion(&player);
+        player_set_aim_direction(&player,&cross);
+        player_set_step(&player);
 
-    zombie_set_position(&zombie01, 50, 200);
-    zombie_set_direction(&zombie01, Z_MOVE_E);
-    zombie_set_step(&zombie01);
 
-    zombie_set_position(&zombie02, 200, 200);
-    zombie_set_direction(&zombie02, Z_MOVE_W);
-    zombie_set_step(&zombie02);
-
-    zombie_set_position(&zombie03, 80, 300);
-    zombie_set_direction(&zombie03, Z_MOVE_N);
-    zombie_set_step(&zombie03);
-
-    render_player(&player,base);
-    render_zombie(&zombie01,base);
-    render_zombie(&zombie02,base);
-    render_zombie(&zombie03,base);
-
-    Cnecin();
-
+        Vsync();
+        clear_screen(base_back);
+        render_player(&player,base_back);
+        render_cross(&cross,base_back);
+        for(i = 0; i < TOTAL_ZOMBIES; i++) {
+            zombie_set_direction(&zombies[i],&player);
+            zombie_update_position(&zombies[i]);
+            zombie_set_step(&zombies[i]);
+            render_zombie(&zombies[i],base_back);
+        }
+        tmp = Physbase();
+        Setscreen(-1,base_back,-1);
+        base_back = tmp;
+    }
+    Setscreen(-1,og,-1);
 }

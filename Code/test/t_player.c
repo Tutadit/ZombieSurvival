@@ -14,13 +14,9 @@ void test_player(UINT32 *base) {
     test_player_render(base);
 }
 
-void plot_pixel(char *base, int x, int y)
-{
-    if (x >= 0 && x < SCREEN_WIDTH && y >= 0 && y < SCREEN_HEIGHT)
-        *(base + y * 80 + (x >> 3)) |= 1 << 7 - (x & 7);
-}
 void test_player_render(UINT32 *base) {
     struct Player player;
+    struct Cross cross;
     int x = 100;
     int y = 100;
     int m_x;
@@ -28,13 +24,12 @@ void test_player_render(UINT32 *base) {
     int ai = 0;
     int key;
     linea0();
-
-    player.step = 0;
-    player.move_direction = 0;
+    player_spawn(&player);
     /*!Cconis()*/
     while(true) {
         m_x = GCURX;
         m_y = GCURY;
+        cross_set_position(&cross,m_x,m_y);
         key = Cnecin();
         if (key == 119) {
             player.speed = 1;
@@ -54,14 +49,19 @@ void test_player_render(UINT32 *base) {
             x++;
         }
         fflush(stdout);
+<<<<<<< HEAD
         player_update_postion(&player,x,y);
         player_set_aim_direction(&player, m_x,m_y);
         player.speed = 1;
+=======
+        player_update_postion(&player);
+        player_set_aim_direction(&player,&cross);
+>>>>>>> 61498e2f2a92116f3efbf08aeb33e2cc7728b47b
         player_set_step(&player);
         Vsync();
         clear_screen(base);
         render_player(&player,base);
-        plot_pixel((char *)base, m_x,m_y);
+        render_cross(&cross,base);
     }
 
 }

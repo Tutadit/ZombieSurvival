@@ -1,6 +1,18 @@
 #include "global.h"
 #include "player_b.h"
 
+const UINT32 PLAYER_DEAD[10] = {
+                               0x400,
+                               0x8040800,
+                               0x4081000,
+                               0x2102000,
+                               0x1204000,
+                               0xfe8000,
+                               0x410000,
+                               0x1e810000,
+                               0x13810000,
+                               0x1efffc00
+};
 const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT] = {
                              0x38000,
                              0x28000,
@@ -241,16 +253,3 @@ const UINT32 *PLAYER_STEP[4][PLAYER_TOTAL_STEPS] = {
                              PLAYER_NORTH_STOP
                             }
 };
-
-const UINT MOVE_W = 0;
-const UINT MOVE_N = 1;
-const UINT MOVE_E = 2;
-const UINT MOVE_S = 3;
-const UINT LOOK_N = 0;
-const UINT LOOK_NW = 1;
-const UINT LOOK_W = 2;
-const UINT LOOK_SW = 3;
-const UINT LOOK_S = 4;
-const UINT LOOK_SE = 5;
-const UINT LOOK_E = 6;
-const UINT LOOK_NE = 7;
