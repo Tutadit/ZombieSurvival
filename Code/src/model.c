@@ -2,14 +2,10 @@
 #include "player_b.h"
 #include "zombie_b.h"
 #include "misc_b.h"
+#include "zs_math.h"
 #include "model.h"
 
-#include <stdio.h>
-#include <osbind.h>
-#include <linea.h>
-
-#include <math.h>
-#include <stdlib.h>
+struct GameModel game_model = {0};
 
 const int bullet_shooting_pos[8][2] = {
                        15,0, /* N  */
@@ -20,29 +16,88 @@ const int bullet_shooting_pos[8][2] = {
                        18,13,/* SE */
                        21,8, /* E  */
                        20,2  /* NE */
-    };
+};
 
-int game_wave(struct GameModel *game_model) {
-    struct Game *game = game_model->game;
-    return game->wave;
-}
-void game_next_wave(struct GameModel *game_model) {
-    struct Game *game = game_model->game;
-    game->wave = game->wave + 1;
-}
-void game_over(struct GameModel *game_model) {
-    struct Game *game = game_model->game;
-    game->over = true;
-}
-bool is_game_over(struct GameModel *game_model) {
-    struct Game *game = game_model->game;
-    return game->over;
+struct MainMenu generate_main_menu() {
+    struct MainMenu menu;
+    spawn_button(&menu.survive,
+                 SURVIVE_A,
+                 SURVIVE_B,
+                 MM_SURVIVE_X,
+                 MM_SURVIVE_Y);
+    spawn_button(&menu.quit,
+                 QUIT_A,
+                 QUIT_B,
+                 MM_QUIT_X,
+                 MM_QUIT_Y);
+    return menu;
 }
 
-void start_game(struct GameModel *game_model) {
-    struct Game *game = game_model->game;
-    game->wave = GAME_START_WAVE;
-    game->over = GAME_START_OVER;
+void spawn_button(struct Button *button,
+                  UINT32 *bitmap_a,
+                  UINT32 *bitmap_b,
+                  int x, int y) {
+    button->bitmap_a = bitmap_a;
+    button->bitmap_b = bitmap_b;
+    button->position_x = x;
+    button->position_y = y;
+    button->height = BUTTON_HEIGHT;
+    button->hover = false;
+}
+
+
+bool button_hover(struct Button *button) {
+    return button->hover;
+}
+void button_cross_collision(struct Button *button, struct Cross *cross) {
+    if (collided (button->position_x,
+                  button->position_y,
+                  BUTTON_HEIGHT,
+                  BUTTON_WIDTH,
+                  cross->position_x,
+                  cross->position_y,
+                  CROSS_HEIGHT,
+                  CROSS_WIDTH) ) {
+        button->hover = true;
+    } else {
+        button->hover = false;
+    }
+
+}
+
+int game_wave() {
+    return game_model.game.wave;
+}
+void game_next_wave() {
+    game_model.game.wave = game_model.game.wave + 1;
+}
+void game_over() {
+    game_model.game.over = !game_model.game.over;
+    game_model.current_bullet_index = 0;
+}
+bool is_game_over() {
+    return game_model.game.over;
+}
+
+void start_game() {
+    game_model.current_zombie_index = 0;
+    game_model.current_bullet_index = 0;
+    game_model.zombie_timer = 0;
+    game_model.player_timer = 0;
+    game_model.game.wave = GAME_START_WAVE;
+    game_model.game.over = GAME_START_OVER;
+    player_spawn(&game_model.player);
+    spawn_zombies();
+}
+
+void spawn_zombies() {
+    int i;
+    int total_zombies = game_wave() * ZOMBIES_PER_WAVE_NUMBER;
+    game_model.current_zombie_index = 0;
+    for(i = 0; i < total_zombies; i++) {
+        zombie_spawn(&game_model.zombies[i]);
+        game_model.current_zombie_index++;
+    }
 }
 
 void player_spawn(struct Player *player) {
@@ -62,12 +117,12 @@ void player_spawn(struct Player *player) {
 }
 
 void zombie_spawn(struct Zombie *zombie) {
-    if ( (rand() % 2) == 1 ) {
-        zombie->position_x = (rand() % 640);
-        zombie->position_y = -32;
+    if ( random(0,2) == 1 ) {
+        zombie->position_x = random(0,640);
+        zombie->position_y = -16;
     } else {
-        zombie->position_x = -32;
-        zombie->position_y = (rand() % 400);
+        zombie->position_x = -16;
+        zombie->position_y = random(0,400);
     }
     zombie->health = ZOMBIE_START_HEALTH;
     zombie->speed = ZOMBIE_START_SPEED;
@@ -77,8 +132,8 @@ void zombie_spawn(struct Zombie *zombie) {
     zombie->step = ZOMBIE_START_STEP;
 }
 
-void player_update_postion(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+void player_update_postion() {
+    struct Player *player = &game_model.player;
     if (player->speed > 0 && player->health > 0) {
         switch ( player->move_direction ) {
         case MOVE_W:
@@ -108,9 +163,9 @@ void player_update_postion(struct GameModel *game_model) {
         }
     }
 }
-void player_set_aim_direction(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
-    struct Cross *cross = game_model->cross;
+void player_set_aim_direction() {
+    struct Player *player = &game_model.player;
+    struct Cross *cross = &game_model.cross;
     int delta_x = cross->position_x - player->position_x;
     int delta_y = player->position_y - cross->position_y;
     int direction = LOOK_E;
@@ -119,8 +174,6 @@ void player_set_aim_direction(struct GameModel *game_model) {
     bool shallow = abs(delta_x) > abs(delta_y * 2);
     bool upwards = delta_y > 0;
     bool right = delta_x > 0;
-    bool dy_gt_0 = delta_y > 0;
-    bool dx_gt_0 = delta_x > 0;
     if ( steep ) {
         if (upwards)
             direction = LOOK_N;
@@ -148,20 +201,20 @@ void player_set_aim_direction(struct GameModel *game_model) {
     player->aim_direction = direction;
 }
 
-void player_set_move_direction(struct GameModel *game_model, int direction) {
-    struct Player *player = game_model->player;
+void player_set_move_direction(int direction) {
+    struct Player *player = &game_model.player;
     player->move_direction = direction;
 }
 
-void player_set_speed(struct GameModel *game_model, int speed) {
-    struct Player *player = game_model->player;
+void player_set_speed(int speed) {
+    struct Player *player = &game_model.player;
     if( speed <= player->max_speed ) {
         player->speed = speed;
     }
 }
 
-void player_take_damage(struct GameModel *game_model, int damage) {
-    struct Player *player = game_model->player;
+void player_take_damage(int damage) {
+    struct Player *player = &game_model.player;
     if ( player->health <= damage ) {
         player->health = 0;
     } else {
@@ -169,8 +222,8 @@ void player_take_damage(struct GameModel *game_model, int damage) {
     }
 }
 
-void player_reload(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+void player_reload() {
+    struct Player *player = &game_model.player;
     int ammo_needed;
     ammo_needed = player->max_magazine - player->magazine;
     if ( ammo_needed > 0 && player->ammo > 0) {
@@ -184,13 +237,13 @@ void player_reload(struct GameModel *game_model) {
     }
 }
 
-void player_max_ammo(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+void player_max_ammo() {
+    struct Player *player = &game_model.player;
     player->ammo = player->max_ammo;
 }
 
-void player_set_step(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+void player_set_step() {
+    struct Player *player = &game_model.player;
     if(player->speed > 0) {
         if(player->step == PLAYER_TOTAL_STEPS - 1) {
             player->step = 0;
@@ -202,13 +255,13 @@ void player_set_step(struct GameModel *game_model) {
     }
 }
 
-void player_score(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+void player_score() {
+    struct Player *player = &game_model.player;
     player->score = player->score + 1;
 }
 
-bool player_alive(struct GameModel *game_model) {
-    struct Player *player = game_model->player;
+bool player_alive() {
+    struct Player *player = &game_model.player;
     return player->health > 0;
 }
 
@@ -275,7 +328,7 @@ void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
             }
         }
     } else {
-        direction = (rand() % 4);
+        direction = random(0,3);
     }
 
     zombie->direction = direction;
@@ -302,6 +355,9 @@ void cross_set_position(struct Cross *cross, int x, int y) {
     cross->position_y = y;
 }
 
+bool bullet_hit(struct Bullet *bullet) {
+    return bullet->hit;
+}
 void bullet_shoot(struct Bullet *bullet, struct Player *player) {
     if(player->magazine > 0 ) {
         bullet->position_x =
@@ -315,7 +371,7 @@ void bullet_shoot(struct Bullet *bullet, struct Player *player) {
         player->magazine = player->magazine - 1;
     }
 }
-bool bullet_update_position(struct Bullet *bullet) {
+void bullet_update_position(struct Bullet *bullet) {
     switch ( bullet->direction ) {
     case LOOK_N:
         bullet->position_y = bullet->position_y - 1;
@@ -346,40 +402,43 @@ bool bullet_update_position(struct Bullet *bullet) {
         bullet->position_y = bullet->position_y - 1;
         break;
     }
-    return ( bullet->position_y < 0 || bullet->position_x < 0 || bullet->hit );
+    bullet->hit = bullet->hit || bullet->position_y < 0 || bullet->position_x < 0;
 }
 
-void detect_collisions(struct GameModel *game_model) {
+void detect_collisions() {
     int i;
     int j;
-    struct Player *player = game_model->player;
-    struct Zombie *zombies[ABSOLUTE_MAX_ZOMBIES] = game_model->zombies;
-    struct Bullet *bullets[ABSOLUTE_MAX_BULLETS] = game_model->bullets;
-    for ( i = 0; i < game_model->current_zombie_index; i++ ) {
-        if (zombies[i] != NULL) {
+    struct Player *player = &game_model.player;
+    struct Zombie *zombies = game_model.zombies;
+    struct Bullet *bullets = game_model.bullets;
+    for ( i = 0; i < game_model.current_zombie_index; i++ ) {
+        if (zombie_alive(&zombies[i])) {
             if (collided (player->position_x,
                           player->position_y,
                           PLAYER_HEIGHT,
                           PLAYER_WIDTH,
-                          zombies[i]->position_x,
-                          zombies[i]->position_y,
+                          zombies[i].position_x,
+                          zombies[i].position_y,
                           ZOMBIE_HEIGHT,
                           ZOMBIE_WIDTH) ) {
-                player_take_damage(game_model,zombies[i]->strength);
+                player_take_damage(game_model.zombies[i].strength);
             }
 
-            for (j = 0; j < game_model->current_bullet_index; j++ ) {
-                if (bullets[j] != NULL) {
-                    if (collided (bullets[j]->position_x,
-                                  bullets[j]->position_y,
+            for (j = 0; j < game_model.current_bullet_index; j++ ) {
+                if (!bullet_hit(&bullets[j])) {
+                    if (collided (bullets[j].position_x,
+                                  bullets[j].position_y,
                                   BULLET_WIDTH,
                                   BULLET_HEIGHT,
-                                  zombies[i]->position_x,
-                                  zombies[i]->position_y,
+                                  zombies[i].position_x,
+                                  zombies[i].position_y,
                                   ZOMBIE_HEIGHT,
                                   ZOMBIE_WIDTH) ) {
-                        zombie_take_damage(zombies[i],1);
-                        bullets[j]->hit = true;
+                        zombie_take_damage(&zombies[i],1);
+                        if ( !zombie_alive(&zombies[i]) ) {
+                            player_score();
+                        }
+                        bullets[j].hit = true;
                     }
                 }
             }

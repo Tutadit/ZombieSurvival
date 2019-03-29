@@ -1,7 +1,41 @@
-#include <stdlib.h>
+#include <osbind.h>
 #include "global.h"
-#include "raster.h"
 #include "font.h"
+#include "zs_math.h"
+#include "raster.h"
+
+#define VIDEO_BASE_HI 0xFFFF8201
+#define VIDEO_BASE_MI 0xFFFF8203
+
+
+UINT32 *get_video_base() {
+    UINT32 old_ssp;
+    UINT32 base;
+    UINT8 *base_lo;
+    UINT8 *base_hi;
+    old_ssp = Super(0);
+    base_lo = (UINT8 *)VIDEO_BASE_MI;
+    base_hi = (UINT8 *)VIDEO_BASE_HI;
+    base = (UINT32)*base_hi << 16 | (UINT32)*base_lo << 8;
+    Super(old_ssp);
+    return (UINT32 *) base;
+}
+
+void set_video_base(UINT32 *base) {
+    UINT32 old_ssp;
+    UINT8  base_lo;
+    UINT8  base_hi;
+    UINT8 *b_lo;
+    UINT8 *b_hi;
+    old_ssp = Super(0);
+    base_lo = (UINT8) ((UINT32) base >> 8);
+    base_hi = (UINT8) ((UINT32) base >> 16);
+    b_hi =(UINT8 *)VIDEO_BASE_HI;
+    b_lo =(UINT8 *)VIDEO_BASE_MI;
+    *b_hi = base_hi;
+    *b_lo = base_lo;
+    Super(old_ssp);
+}
 
 void plot_chars(UINT8 *base, int x, int y, char *chars, int size) {
     int i;
