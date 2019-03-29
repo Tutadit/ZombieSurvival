@@ -1,6 +1,7 @@
 #ifndef RENDERER_ZS
 #define RENDERER_ZS
 
+void render_button(const struct Button *button, UINT32 *base);
 void render_player(const struct Player *player, UINT32 *base);
 void render_stats(const struct Player *player,
                   const struct Game *game,

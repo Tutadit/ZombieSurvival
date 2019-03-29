@@ -6,6 +6,28 @@
 #include "model.h"
 #include "font.h"
 
+void render_button(const struct Button *button, UINT32 *base) {
+    UINT32 *bitmap_a = button->bitmap_a;
+    UINT32 *bitmap_b = button->bitmap_b;
+    UINT32 bitmap_a_opp[BUTTON_HEIGHT];
+    UINT32 bitmap_b_opp[BUTTON_HEIGHT];
+    int i;
+    if ( button_hover(button) ) {
+        for ( i = 0; i < button->height; i++ ) {
+            bitmap_a_opp[i] = ~bitmap_a[i];
+            bitmap_b_opp[i] = ~bitmap_b[i];
+        }
+        bitmap_a = bitmap_a_opp;
+        bitmap_b = bitmap_b_opp;
+    }
+    plot_bitmap_64(base,
+                   button->position_x,
+                   button->position_y,
+                   bitmap_a,
+                   bitmap_b,
+                   button->height);
+}
+
 void render_stats(const struct Player *player,
                   const struct Game *game,
                   UINT32 *base) {

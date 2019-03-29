@@ -1,22 +1,39 @@
-#ifndef MAIN_GAME
-#define MAIN_GAME
+#ifndef MAIN_GAME_ZS
+#define MAIN_GAME_ZS
+#include "global.h"
+#include "model.h"
+#define BUFFER_SPACE 32256
 
-UINT32 get_time();
-void clear_screen(UINT32 *base);
+#define VECTOR_VBL 28
 
-void initialize_game(struct GameModel *game_model);
-void end_game(struct GameModel *game_model);
+typedef void (*Vector)();
 
-void spawn_zombies(struct GameModel *game_model);
-bool update_player(struct GameModel *game_model);
-bool update_zombies(struct GameModel *game_model);
+extern bool render_request;
 
-void update_player_timed(struct GameModel *game_model);
-void update_zombies_timed(struct GameModel *game_model);
+extern UINT32 *back_buffer;
+extern UINT32 *tmp;
+extern UINT32 *og_base;
+extern UINT8 buffer_space[BUFFER_SPACE];
 
-void shoot(struct GameModel *game_model);
-void render_game(struct GameModel *game_model, UINT32 *base);
-void render_zombies(struct GameModel *game_model, UINT32 *base);
-void render_bullets(struct GameModel *game_model, UINT32 *base);
 
+Vector install_vector(int num, Vector vector);
+void vbl_isr();
+void do_vbl_isr();
+
+void main_menu(struct MainMenu *menu);
+void game();
+void end_game();
+
+void update_cursor(struct Cross *cross);
+void update_bullets();
+bool update_player();
+bool update_zombies();
+
+void update_player_timed();
+void update_zombies_timed();
+
+void shoot();
+void render_game(UINT32 *base);
+void render_zombies(UINT32 *base);
+void render_bullets(UINT32 *base);
 #endif
