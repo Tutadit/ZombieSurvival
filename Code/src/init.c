@@ -1,15 +1,8 @@
+#include "init.h"
 #define OS_ROM_START ((Vector)0xFC0030)
 #define TRAP_1       33
 
-
 typedef void (*Vector)();
-
-
-void do_super();
-
-void init_IO();
-void init_vector_table();
-
 
 Vector * const vector_table = 0x000000;
 

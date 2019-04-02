@@ -1,6 +1,5 @@
 #ifndef INPUT_ZS
 #define INPUT_ZS
-
 #include "global.h"
 
 #define ZS_BUFFER_SIZE 20
@@ -53,6 +52,7 @@ extern UINT8 * MFP_in_service_b;
 int set_ipl(int mask);
 void enable_midi();
 void disable_midi();
+
 
 void kbd_isr();
 void do_kbd_isr();

@@ -12,8 +12,9 @@
 #define CHAR_CR    13
 #define CHAR_DEL  127
 
-extern const UINT8 font[];
 #define IS_PRINTABLE(i) ((i) >= ' ' && (i) <= '~')
 #define GLYPH_START(i) (font + (((i) - ' ') << 3))
+
+extern const UINT8 font[];
 
 #endif

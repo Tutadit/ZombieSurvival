@@ -1,10 +1,11 @@
 #ifndef ZS_MATH
 #define ZS_MATH
+
 #include "global.h"
 
-#define SEED 0x12345678
+#define ZS_SEED 0x5678
 
-extern UINT32 random_seed;
+extern UINT16 random_seed;
 
 int abs(int number);
 void random_init();
