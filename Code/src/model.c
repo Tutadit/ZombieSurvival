@@ -2,6 +2,7 @@
 #include "player_b.h"
 #include "zombie_b.h"
 #include "misc_b.h"
+#include "effects.h"
 #include "zs_math.h"
 #include "model.h"
 
@@ -215,6 +216,7 @@ void player_set_speed(int speed) {
 
 void player_take_damage(int damage) {
     struct Player *player = &game_model.player;
+    play_bite();
     if ( player->health <= damage ) {
         player->health = 0;
     } else {
