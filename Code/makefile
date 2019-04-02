@@ -1,56 +1,63 @@
-TARGET=bin/game
+TARGET=os.prg
+OS_IMG=os.img
+
 TEST_TARGET=bin/test
 
 SRCDIR=src
 TEST_SRCDIR=test
 
 BUILDDIR=build
-OBJ_DIR=build
-OBJ_EXT=.o
 TEST_BUILDDIR=build\test
 
+OBJECTS=$(BUILDDIR)\start.o 	$(BUILDDIR)\init.o   	$(BUILDDIR)\vbl_isr.o 	\
+		$(BUILDDIR)\kbd_isr.o 	$(BUILDDIR)\clear.o 	$(BUILDDIR)\ints.o 		\
+		$(BUILDDIR)\player_b.o 	$(BUILDDIR)\zombie_b.o 	$(BUILDDIR)\misc_b.o 	\
+		$(BUILDDIR)\renderer.o 	$(BUILDDIR)\effects.o  	$(BUILDDIR)\zs_math.o 	\
+		$(BUILDDIR)\raster.o   	$(BUILDDIR)\music.o 	$(BUILDDIR)\model.o 	\
+		$(BUILDDIR)\input.o 	$(BUILDDIR)\font.o 		$(BUILDDIR)\psg.o 		\
+		$(BUILDDIR)\main.o
 
-OBJECTS=$(BUILDDIR)\vbl_isr.o $(BUILDDIR)\kbd_isr.o $(BUILDDIR)\clear.o \
-		$(BUILDDIR)\ints.o \
-		$(BUILDDIR)\model.o $(BUILDDIR)\raster.o $(BUILDDIR)\player_b.o \
-		$(BUILDDIR)\zombie_b.o $(BUILDDIR)\misc_b.o $(BUILDDIR)\renderer.o \
-		$(BUILDDIR)\font.o $(BUILDDIR)\psg.o $(BUILDDIR)\effects.o \
-		$(BUILDDIR)\input.o $(BUILDDIR)\music.o $(BUILDDIR)\zs_math.o \
-		$(BUILDDIR)\zs.o
-
-TEST_OBJECTS=$(OBJECTS) $(TEST_BUILDDIR)\t_raster.o $(TEST_BUILDDIR)\t_player.o \
-			 $(TEST_BUILDDIR)\t_render.o $(TEST_BUILDDIR)\t_runner.o
+TEST_OBJECTS=	$(OBJECTS) \
+				$(TEST_BUILDDIR)\t_raster.o	$(TEST_BUILDDIR)\t_player.o \
+			 	$(TEST_BUILDDIR)\t_render.o	$(TEST_BUILDDIR)\t_runner.o
 
 CC=cc68x
 ASM=gen
+LINKER=ld
 
-ASMFLAGS=-D -L2
-CFLAGS=-g -W3
+ASMFLAGS=-L2
+CFLAGS=-W3
 INC=-Iinclude
 
+$(OS_IMG): $(TARGET)
+	burnroms
+
 $(TARGET): $(OBJECTS)
-	@%echo "linking..."
-	@$(CC) $(CFLAGS) $(OBJECTS) -o $(TARGET)
+	@%echo linking...
+	@$(LINKER) -o $@ $(OBJECTS)
 
-$(BUILDDIR)\raster.o: $(SRCDIR)\raster.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+other: $(OBJECTS)
+	@$(CC) $(OBJECTS) -o game
 
-$(BUILDDIR)\zs_math.o: $(SRCDIR)\zs_math.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+$(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
+	@%echo $(ASM) $<
+	@$(ASM) $(ASMFLAGS) -O$@ $<
 
-$(BUILDDIR)\model.o: $(SRCDIR)\model.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+$(BUILDDIR)\start.o: $(SRCDIR)\start.s
+	@%echo $(ASM) $<
+	@$(ASM) $(ASMFLAGS) -O$@ $<
 
-$(BUILDDIR)\zombie.o: $(SRCDIR)\zombie.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+$(BUILDDIR)\ints.o: $(SRCDIR)\ints.s
+	@%echo $(ASM) $<
+	@$(ASM) $(ASMFLAGS) -O$@ $<
 
-$(BUILDDIR)\renderer.o: $(SRCDIR)\renderer.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+$(BUILDDIR)\vbl_isr.o: $(SRCDIR)\vbl_isr.s
+	@%echo $(ASM) $<
+	@$(ASM) $(ASMFLAGS) -O$@ $<
+
+$(BUILDDIR)\kbd_isr.o: $(SRCDIR)\kbd_isr.s
+	@%echo $(ASM) $<
+	@$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
 
 $(BUILDDIR)\player_b.o: $(SRCDIR)\player_b.c
 	@%echo $(CC) $<
@@ -64,21 +71,33 @@ $(BUILDDIR)\misc_b.o: $(SRCDIR)\misc_b.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
-	@%echo $(ASM) $<
-	@$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
+$(BUILDDIR)\renderer.o: $(SRCDIR)\renderer.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\ints.o: $(SRCDIR)\ints.s
-	@%echo $(ASM) $<
-	@$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
+$(BUILDDIR)\effects.o: $(SRCDIR)\effects.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\vbl_isr.o: $(SRCDIR)\vbl_isr.s
-	@%echo $(ASM) $<
-	@$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
+$(BUILDDIR)\zs_math.o: $(SRCDIR)\zs_math.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\kbd_isr.o: $(SRCDIR)\kbd_isr.s
-	@%echo $(ASM) $<
-	@$(ASM) $(ASMFLAGS) $(INC) -O$@ $<
+$(BUILDDIR)\raster.o: $(SRCDIR)\raster.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(BUILDDIR)\music.o: $(SRCDIR)\music.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(BUILDDIR)\model.o: $(SRCDIR)\model.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
+$(BUILDDIR)\input.o: $(SRCDIR)\input.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 $(BUILDDIR)\font.o: $(SRCDIR)\font.c
 	@%echo $(CC) $<
@@ -88,24 +107,16 @@ $(BUILDDIR)\psg.o: $(SRCDIR)\psg.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\music.o: $(SRCDIR)\music.c
+$(BUILDDIR)\init.o: $(SRCDIR)\init.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-$(BUILDDIR)\effects.o: $(SRCDIR)\effects.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(BUILDDIR)\input.o: $(SRCDIR)\input.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(BUILDDIR)\zs.o: $(SRCDIR)\zs.c
+$(BUILDDIR)\main.o: $(SRCDIR)\main.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
 test: $(TEST_TARGET)
-	@echo "Running tests..."
+	@echo Running tests...
 	@bin/test
 
 $(TEST_TARGET): $(TEST_OBJECTS)
@@ -128,9 +139,10 @@ $(TEST_BUILDDIR)\t_runner.o: $(TEST_SRCDIR)\t_runner.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-all: clean $(TARGET)
+all: clean $(OS_IMG)
 clean:
-	@%echo "Cleaning..."
+	@%echo Cleaning...
 	@%Rm bin\*
+	@%Rm os.img os.prg
 	@%Rm build\*.o
 	@%Rm build\test\*.o

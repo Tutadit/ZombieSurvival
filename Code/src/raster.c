@@ -3,17 +3,17 @@
 #include "font.h"
 #include "zs_math.h"
 #include "raster.h"
+#include "input.h"
 
-#define VIDEO_BASE_HI 0xFFFF8201
-#define VIDEO_BASE_MI 0xFFFF8203
+#define VIDEO_BASE_HI 0xFF8201
+#define VIDEO_BASE_MI 0xFF8203
 
 
 UINT32 *get_video_base() {
-    UINT32 old_ssp;
     UINT32 base;
     UINT8 *base_lo;
     UINT8 *base_hi;
-    old_ssp = Super(0);
+    long old_ssp = Super(0);
     base_lo = (UINT8 *)VIDEO_BASE_MI;
     base_hi = (UINT8 *)VIDEO_BASE_HI;
     base = (UINT32)*base_hi << 16 | (UINT32)*base_lo << 8;
@@ -22,19 +22,20 @@ UINT32 *get_video_base() {
 }
 
 void set_video_base(UINT32 *base) {
-    UINT32 old_ssp;
     UINT8  base_lo;
     UINT8  base_hi;
     UINT8 *b_lo;
     UINT8 *b_hi;
-    old_ssp = Super(0);
+    long old_ssp = Super(0);
     base_lo = (UINT8) ((UINT32) base >> 8);
     base_hi = (UINT8) ((UINT32) base >> 16);
+
     b_hi =(UINT8 *)VIDEO_BASE_HI;
     b_lo =(UINT8 *)VIDEO_BASE_MI;
     *b_hi = base_hi;
     *b_lo = base_lo;
     Super(old_ssp);
+
 }
 
 void plot_chars(UINT8 *base, int x, int y, char *chars, int size) {
@@ -89,7 +90,7 @@ bool within_bounds(UINT base, UINT height, int *x, int *y, UINT *row, UINT *x_sh
     return ( *x >= 0 && *x < SCREEN_WIDTH && *y >= 0 && *y < SCREEN_HEIGHT );
 }
 
-void plot_bitmap_8(UINT8 *base, int x, int y, const UINT8 *bitmap, UINT height) {
+void plot_bitmap_8(UINT8 *base, int x, int y, UINT8 *bitmap, UINT height) {
     UINT8 *src = bitmap;
     UINT8 *dst;
     UINT8 extend_left;
@@ -121,7 +122,7 @@ void plot_bitmap_8(UINT8 *base, int x, int y, const UINT8 *bitmap, UINT height) 
     }
 }
 
-void plot_bitmap_16(UINT16 *base, int x, int y, const UINT16 *bitmap, UINT height) {
+void plot_bitmap_16(UINT16 *base, int x, int y, UINT16 *bitmap, UINT height) {
     UINT16 *src = bitmap;
     UINT16 *dst;
     UINT16 extend_left;
@@ -153,7 +154,7 @@ void plot_bitmap_16(UINT16 *base, int x, int y, const UINT16 *bitmap, UINT heigh
     }
 }
 
-void plot_bitmap_32(UINT32 *base, int x, int y, const UINT32 *bitmap, UINT height) {
+void plot_bitmap_32(UINT32 *base, int x, int y, UINT32 *bitmap, UINT height) {
     UINT32 *src = bitmap;
     UINT32 *dst;
     UINT32 extend_left;
@@ -185,7 +186,7 @@ void plot_bitmap_32(UINT32 *base, int x, int y, const UINT32 *bitmap, UINT heigh
     }
 }
 
-void plot_bitmap_64(UINT32 *base, int x, int y, const UINT32 *bitmapA, UINT32 *bitmapB, UINT height) {
+void plot_bitmap_64(UINT32 *base, int x, int y, UINT32 *bitmapA, UINT32 *bitmapB, UINT height) {
     plot_bitmap_32(base,x,y,bitmapA,height);
     plot_bitmap_32(base,x+32,y,bitmapB,height);
 }

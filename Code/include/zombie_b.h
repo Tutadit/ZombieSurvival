@@ -1,6 +1,6 @@
 #ifndef ZOMBIE_ZS
 #define ZOMBIE_ZS
-
+#include "global.h"
 #define ZOMBIE_HEIGHT 24
 #define ZOMBIE_WIDTH 20
 #define ZOMBIE_TOTAL_STEPS 4

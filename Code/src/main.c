@@ -1,5 +1,4 @@
 #include <osbind.h>
-#include <stdio.h>
 #include "global.h"
 #include "raster.h"
 #include "model.h"
@@ -9,13 +8,39 @@
 #include "t_render.h"
 #include "misc_b.h"
 #include "input.h"
+#include "music.h"
 #include "zs_math.h"
-#include "zs.h"
+#include "main.h"
+
+volatile UINT8 * const MFP_PDR_P = MFP_PDR_ADR;
+volatile UINT8 * const MFP_AER_P = MFP_AER_ADR;
+volatile UINT8 * const MFP_DIR_P = MFP_DIR_ADR;
+volatile UINT8 * const MFP_IEA_P = MFP_IEA_ADR;
+volatile UINT8 * const MFP_IEB_P = MFP_IEB_ADR;
+volatile UINT8 * const MFP_IPA_P = MFP_IPA_ADR;
+volatile UINT8 * const MFP_IPB_P = MFP_IPB_ADR;
+volatile UINT8 * const MFP_ISA_P = MFP_ISA_ADR;
+volatile UINT8 * const MFP_ISB_P = MFP_ISB_ADR;
+volatile UINT8 * const MFP_IMA_P = MFP_IMA_ADR;
+volatile UINT8 * const MFP_IMB_P = MFP_IMB_ADR;
+volatile UINT8 * const MFP_VCR_P = MFP_VCR_ADR;
+volatile UINT8 * const MFP_TAC_P = MFP_TAC_ADR;
+volatile UINT8 * const MFP_TBC_P = MFP_TBC_ADR;
+volatile UINT8 * const MFP_TDC_P = MFP_TDC_ADR;
+volatile UINT8 * const MFP_TAD_P = MFP_TAD_ADR;
+volatile UINT8 * const MFP_TBD_P = MFP_TBD_ADR;
+volatile UINT8 * const MFP_TCD_P = MFP_TCD_ADR;
+volatile UINT8 * const MFP_TDD_P = MFP_TDD_ADR;
+volatile UINT8 * const MFP_SYC_P = MFP_SYC_ADR;
+volatile UINT8 * const MFP_UCR_P = MFP_UCR_ADR;
+volatile UINT8 * const MFP_RES_P = MFP_RES_ADR;
+volatile UINT8 * const MFP_TRS_P = MFP_TRS_ADR;
+volatile UINT8 * const MFP_UAD_P = MFP_UAD_ADR;
 
 UINT32 *back_buffer = 0;
 UINT32 *tmp = 0;
-UINT32 *og_base = 0;
 UINT8 buffer_space[BUFFER_SPACE] = {0};
+bool render_request = false;
 
 int main() {
     UINT32 timeThen,
@@ -23,19 +48,25 @@ int main() {
         timeElapsed;
     int offset;
     char choice = 'm';
-    Vector orig_vbl_vector = install_vector(VECTOR_VBL, vbl_isr);
-    Vector orig_kbd_vector = install_vector(VECTOR_KBD, kbd_isr);
     struct MainMenu menu;
+
+    set_video_base((UINT32 *)VIDEO_BASE);
+    set_up_mfp();
+    install_isrs();
+    random_init();
     disable_midi();
-    og_base = get_video_base();
+    enable_ikbd_irq();
+    start_music();
     back_buffer = (UINT32 *) buffer_space;
-    offset = (int) buffer_space % 256;
+    offset = (int) ( (UINT32) buffer_space % 256 );
     if ( offset !=0 ) {
        back_buffer += 256 - offset;
     }
-    random_init();
+
     menu = generate_main_menu();
+
     while ( choice != 'q' ) {
+        update_music();
         if ( render_request ) {
             clear_screen(back_buffer);
             if (is_game_over()) {
@@ -51,11 +82,50 @@ int main() {
             render_request = false;
         }
     }
-    set_video_base(og_base);
-    install_vector(VECTOR_VBL, orig_vbl_vector);
-    install_vector(VECTOR_KBD, orig_kbd_vector);
-    enable_midi();
     return 0;
+}
+
+void set_up_mfp() {
+    long old_ssp = Super(0);
+    *MFP_PDR_P = MFP_PDR_DEF;
+    *MFP_AER_P = MFP_AER_DEF;
+    *MFP_DIR_P = MFP_DIR_DEF;
+    *MFP_IEA_P = MFP_IEA_DEF;
+    *MFP_IEB_P = MFP_IEB_DEF;
+    *MFP_IPA_P = MFP_IPA_DEF;
+    *MFP_IPB_P = MFP_IPB_DEF;
+    *MFP_ISA_P = MFP_ISA_DEF;
+    *MFP_ISB_P = MFP_ISB_DEF;
+    *MFP_IMA_P = MFP_IMA_DEF;
+    *MFP_IMB_P = MFP_IMB_DEF;
+    *MFP_VCR_P = MFP_VCR_DEF;
+    *MFP_TAC_P = MFP_TAC_DEF;
+    *MFP_TBC_P = MFP_TBC_DEF;
+
+    *MFP_TAD_P = MFP_TAD_DEF;
+    *MFP_TBD_P = MFP_TBD_DEF;
+    *MFP_TCD_P = MFP_TCD_DEF;
+
+    *MFP_TDD_P = MFP_TDD_DEF;
+    *MFP_SYC_P = MFP_SYC_DEF;
+    *MFP_UCR_P = MFP_UCR_DEF;
+    *MFP_RES_P = MFP_RES_DEF;
+    *MFP_TRS_P = MFP_TRS_DEF;
+    *MFP_UAD_P = MFP_UAD_DEF;
+    Super(old_ssp);
+}
+
+void enable_ikbd_irq() {
+    long old_ssp = Super(0);
+    *IKBD_control = IKBD_CTL_DEF;
+    set_ipl(0);
+    Super(old_ssp);
+}
+
+void install_isrs() {
+    install_vector(VECTOR_VBL, vbl_isr);
+    install_vector(VECTOR_HBL, hbl_isr);
+    install_vector(VECTOR_KBD, kbd_isr);
 }
 
 void game() {
@@ -78,15 +148,11 @@ void main_menu(struct MainMenu *menu) {
     if ( mouse_left_status() ) {
         if (button_hover(&menu->survive)) {
             start_game();
-        } else if (button_hover(&menu->quit)) {
-            ;
         }
     }
     button_cross_collision(&menu->survive, &game_model.cross);
-    button_cross_collision(&menu->quit, &game_model.cross);
 
     render_button(&menu->survive, back_buffer);
-    render_button(&menu->quit, back_buffer);
 }
 
 bool update_zombies() {
@@ -105,8 +171,6 @@ bool update_zombies() {
 }
 
 bool update_player() {
-    int m_x;
-    int m_y;
     SCANCODE key;
     if( keys_to_read()) {
         key = sb_pop();
@@ -152,12 +216,12 @@ bool update_player() {
     } else {
         player_set_speed(0);
     }
+    player_set_step();
     player_set_aim_direction();
     return !player_alive();
 }
 
 void update_player_timed() {
-    player_set_step();
     player_update_postion();
 }
 
@@ -188,6 +252,7 @@ void render_game(UINT32 *base) {
 void render_zombies(UINT32 *base) {
     int i;
     for (i = 0; i < game_model.current_zombie_index; i++) {
+
         if(zombie_alive(&game_model.zombies[i])) {
             render_zombie(&game_model.zombies[i],base);
         }
@@ -215,17 +280,15 @@ void render_bullets(UINT32 *base) {
 
 }
 
-Vector install_vector(int num, Vector vector) {
-    Vector orig;
+void install_vector(int num, Vector vector) {
     Vector *vectp = (Vector *)((long)num << 2);
     long old_ssp = Super(0);
-    orig = *vectp;
     *vectp = vector;
     Super(old_ssp);
-    return orig;
 }
 
 void do_vbl_isr() {
+    note++;
     update_bullets();
     random_update();
     if(!is_game_over()) {
@@ -237,7 +300,7 @@ void do_vbl_isr() {
     }
 
     game_model.zombie_timer++;
-    if ( game_model.zombie_timer  > 7 ) {
+    if ( game_model.zombie_timer  > 15 ) {
         update_zombies_timed();
         game_model.zombie_timer = 0;
     }
