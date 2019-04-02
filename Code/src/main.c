@@ -9,6 +9,7 @@
 #include "misc_b.h"
 #include "input.h"
 #include "music.h"
+#include "effects.h"
 #include "zs_math.h"
 #include "main.h"
 
@@ -240,6 +241,7 @@ void shoot() {
     if ( game_model.current_bullet_index == ABSOLUTE_MAX_BULLETS ) {
         game_model.current_bullet_index = 0;
     }
+    play_shoot();
 }
 
 void render_game(UINT32 *base) {
@@ -288,7 +290,7 @@ void install_vector(int num, Vector vector) {
 }
 
 void do_vbl_isr() {
-    note++;
+    tempo++;
     update_bullets();
     random_update();
     if(!is_game_over()) {

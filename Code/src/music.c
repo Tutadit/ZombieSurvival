@@ -2,12 +2,17 @@
 #include "music.h"
 #include "psg.h"
 
-const UINT8 song[SONG_SIZE] = {
-                                  248,
-                                  451,
-                                  379,
-                                  253,
-                                  379
+
+const int song[SONG_SIZE] = {
+                               G_NOTE,
+                               C_NOTE,
+                               C_NOTE,
+                               C_NOTE,
+                               D_NOTE,
+                               E_NOTE,
+                               E_NOTE,
+                               E_NOTE,
+                               D_NOTE
 };
 int tempo = 0;
 int note = 0;
@@ -18,8 +23,13 @@ void start_music() {
 }
 
 void update_music() {
-    if ( note == SONG_SIZE ) {
-        note = 0;
+    if ( tempo >= 25 ) {
+        note++;
+        if ( note >= SONG_SIZE ) {
+            note = 0;
+        }
+
+        set_tone(CHANNEL_A,song[note]);
+        tempo = 0;
     }
-    set_tone(CHANNEL_A,song[note]);
 }
