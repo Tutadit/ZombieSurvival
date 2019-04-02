@@ -16,9 +16,7 @@ int main() {
 <<<<<<< HEAD
     test_player(base);
     test_zombie(base);
-=======
     /*   test_player(base);*/
->>>>>>> 61498e2f2a92116f3efbf08aeb33e2cc7728b47b
     test_renderer(base);
 
 	return 0;

@@ -49,14 +49,11 @@ void test_player_render(UINT32 *base) {
             x++;
         }
         fflush(stdout);
-<<<<<<< HEAD
         player_update_postion(&player,x,y);
         player_set_aim_direction(&player, m_x,m_y);
         player.speed = 1;
-=======
         player_update_postion(&player);
         player_set_aim_direction(&player,&cross);
->>>>>>> 61498e2f2a92116f3efbf08aeb33e2cc7728b47b
         player_set_step(&player);
         Vsync();
         clear_screen(base);
