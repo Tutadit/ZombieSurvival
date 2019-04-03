@@ -1,8 +1,8 @@
 #ifndef MISC_B_ZS
 #define MISC_B_ZS
 
-#define CROSS_HEIGHT 3
-#define CROSS_WIDTH 3
+#define CURSOR_HEIGHT 3
+#define CURSOR_WIDTH 3
 #define BULLET_WIDTH 1
 #define BULLET_HEIGHT 1
 
@@ -12,13 +12,6 @@
 extern const UINT32 SURVIVE_A[BUTTON_HEIGHT];
 extern const UINT32 SURVIVE_B[BUTTON_HEIGHT];
 
-extern const UINT32 GO_AGAIN_A[BUTTON_HEIGHT];
-extern const UINT32 GO_AGAIN_B[BUTTON_HEIGHT];
-
-extern const UINT32 QUIT_A[BUTTON_HEIGHT];
-extern const UINT32 QUIT_B[BUTTON_HEIGHT];
-
-
-extern const UINT8 CROSS[CROSS_HEIGHT];
+extern const UINT8 CURSOR[CURSOR_HEIGHT];
 
 #endif

@@ -2,7 +2,7 @@
 #define ZS_MUSIC
 #include "global.h"
 
-#define SONG_SIZE 9
+#define SONG_SIZE 16
 
 #define c_NOTE 478
 #define C_NOTE 451
@@ -15,11 +15,13 @@
 #define G_NOTE 301
 #define a_NOTE 284
 #define A_NOTE 268
-#define b_NOTE 253
+#define B_NOTE 253
 
 extern const int song[SONG_SIZE];
 extern int tempo;
 extern int note;
+extern int volume_down;
+extern int volume;
 
 void start_music();
 void update_music();

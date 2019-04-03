@@ -22,6 +22,10 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 400
 
+
+void hbl_isr();
+void vbl_isr();
+
 UINT32 *get_video_base();
 void set_video_base(UINT32 *base);
 

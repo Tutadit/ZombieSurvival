@@ -15,7 +15,7 @@ OBJECTS=$(BUILDDIR)\start.o 	$(BUILDDIR)\init.o   	$(BUILDDIR)\vbl_isr.o 	\
 		$(BUILDDIR)\renderer.o 	$(BUILDDIR)\effects.o  	$(BUILDDIR)\zs_math.o 	\
 		$(BUILDDIR)\raster.o   	$(BUILDDIR)\music.o 	$(BUILDDIR)\model.o 	\
 		$(BUILDDIR)\input.o 	$(BUILDDIR)\font.o 		$(BUILDDIR)\psg.o 		\
-		$(BUILDDIR)\main.o
+		$(BUILDDIR)\setup.o		$(BUILDDIR)\main.o
 
 TEST_OBJECTS=	$(OBJECTS) \
 				$(TEST_BUILDDIR)\t_raster.o	$(TEST_BUILDDIR)\t_player.o \
@@ -35,9 +35,6 @@ $(OS_IMG): $(TARGET)
 $(TARGET): $(OBJECTS)
 	@%echo linking...
 	@$(LINKER) -o $@ $(OBJECTS)
-
-other: $(OBJECTS)
-	@$(CC) $(OBJECTS) -o game
 
 $(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
 	@%echo $(ASM) $<
@@ -111,6 +108,10 @@ $(BUILDDIR)\init.o: $(SRCDIR)\init.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+$(BUILDDIR)\setup.o: $(SRCDIR)\setup.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
 $(BUILDDIR)\main.o: $(SRCDIR)\main.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -142,7 +143,5 @@ $(TEST_BUILDDIR)\t_runner.o: $(TEST_SRCDIR)\t_runner.c
 all: clean $(OS_IMG)
 clean:
 	@%echo Cleaning...
-	@%Rm bin\*
+	@%Rm $(BUILDDIR)\*
 	@%Rm os.img os.prg
-	@%Rm build\*.o
-	@%Rm build\test\*.o
