@@ -98,8 +98,6 @@ struct GameModel {
     struct Bullet bullets[ABSOLUTE_MAX_BULLETS];
     int current_zombie_index;
     int current_bullet_index;
-    int zombie_timer;
-    int player_timer;
 };
 
 extern struct GameModel game_model;

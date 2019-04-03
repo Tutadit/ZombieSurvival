@@ -69,8 +69,6 @@ bool is_game_over() {
 void start_game() {
     game_model.current_zombie_index = 0;
     game_model.current_bullet_index = 0;
-    game_model.zombie_timer = 0;
-    game_model.player_timer = 0;
     game_model.game.wave = GAME_START_WAVE;
     game_model.game.over = GAME_START_OVER;
     player_spawn(&game_model.player);
@@ -357,32 +355,32 @@ bool bullet_shoot(struct Bullet *bullet, struct Player *player) {
 void bullet_update_position(struct Bullet *bullet) {
     switch ( bullet->direction ) {
     case LOOK_N:
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_y = bullet->position_y - 3;
         break;
     case LOOK_NW:
-        bullet->position_x = bullet->position_x - 1;
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_x = bullet->position_x - 3;
+        bullet->position_y = bullet->position_y - 3;
         break;
     case LOOK_W:
-        bullet->position_x = bullet->position_x - 1;
+        bullet->position_x = bullet->position_x - 3;
         break;
     case LOOK_SW:
-        bullet->position_x = bullet->position_x - 1;
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_x = bullet->position_x - 3;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_S:
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_SE:
-        bullet->position_x = bullet->position_x + 1;
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_x = bullet->position_x + 3;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_E:
-        bullet->position_x = bullet->position_x + 1;
+        bullet->position_x = bullet->position_x + 3;
         break;
     case LOOK_NE:
-        bullet->position_x = bullet->position_x + 1;
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_x = bullet->position_x + 3;
+        bullet->position_y = bullet->position_y - 3;
         break;
     }
     bullet->hit = bullet->hit ||

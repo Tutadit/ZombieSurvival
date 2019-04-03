@@ -14,14 +14,15 @@
 #include "main.h"
 
 
-UINT32 *back_buffer = 0;
-UINT32 *tmp = 0;
-UINT8 buffer_space[BUFFER_SPACE] = {0};
-bool render_request = false;
-
 int player_timer = 0;
 int zombie_timer = 0;
 int bullet_timer = 0;
+
+bool render_request = false;
+
+UINT32 *back_buffer = 0;
+UINT32 *tmp = 0;
+UINT8 buffer_space[BUFFER_SPACE] = {0};
 
 int main() {
     initital_setup();
@@ -65,9 +66,9 @@ void initital_setup() {
     enable_ikbd_irq();
     start_music();
     back_buffer = (UINT32 *) buffer_space;
-    offset = (int) ( (UINT32) buffer_space % 256 );
+    offset = (int) ( (UINT32) buffer_space & 0xFF );
     if ( offset !=0 ) {
-       back_buffer += 256 - offset;
+        back_buffer += ( 256 - offset );
     }
     spawn_button(&game_model.survive,
                  SURVIVE_A,
@@ -76,10 +77,30 @@ void initital_setup() {
                  MM_SURVIVE_Y);
 }
 
+void reset_timer(int *timer) {
+    long old_ssp = Super(0);
+    int old_mask = set_ipl(6);
+    *timer = 0;
+    set_ipl(old_mask);
+    Super(old_ssp);
+}
+
 void game() {
+
+    if ( zombie_timer  >= ZOMBIE_UPDATE_FREQUENCY ) {
+        update_zombies_timed();
+        reset_timer(&zombie_timer);
+    }
+
+    if ( player_timer  >= PLAYER_UPDATE_FREQUENCY ) {
+        update_player_timed();
+        reset_timer(&player_timer);
+    }
+
     if ( update_player() ){
         game_over();
     }
+
     detect_collisions();
     render_game();
 }
@@ -240,20 +261,9 @@ void render_bullets() {
 void do_vbl_isr() {
     tempo++;
     volume_down++;
+    player_timer++;
+    zombie_timer++;
     update_bullets();
     random_update();
-    if(!is_game_over()) {
-        game_model.player_timer++;
-        if ( game_model.player_timer  > 1 ) {
-            update_player_timed();
-            game_model.player_timer = 0;
-        }
-    }
-
-    game_model.zombie_timer++;
-    if ( game_model.zombie_timer  > 15 ) {
-        update_zombies_timed();
-        game_model.zombie_timer = 0;
-    }
     render_request = true;
 }
