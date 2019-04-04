@@ -3,6 +3,7 @@
 #include "zombie_b.h"
 #include "misc_b.h"
 #include "effects.h"
+#include "raster.h"
 #include "zs_math.h"
 #include "model.h"
 
@@ -18,21 +19,6 @@ const int bullet_shooting_pos[8][2] = {
                        21,8, /* E  */
                        20,2  /* NE */
 };
-
-struct MainMenu generate_main_menu() {
-    struct MainMenu menu;
-    spawn_button(&menu.survive,
-                 SURVIVE_A,
-                 SURVIVE_B,
-                 MM_SURVIVE_X,
-                 MM_SURVIVE_Y);
-    spawn_button(&menu.quit,
-                 QUIT_A,
-                 QUIT_B,
-                 MM_QUIT_X,
-                 MM_QUIT_Y);
-    return menu;
-}
 
 void spawn_button(struct Button *button,
                   UINT32 *bitmap_a,
@@ -50,20 +36,20 @@ void spawn_button(struct Button *button,
 bool button_hover(struct Button *button) {
     return button->hover;
 }
-void button_cross_collision(struct Button *button, struct Cross *cross) {
+
+void button_cursor_collision(struct Button *button, struct Cursor *cursor) {
     if (collided (button->position_x,
                   button->position_y,
                   BUTTON_HEIGHT,
                   BUTTON_WIDTH,
-                  cross->position_x,
-                  cross->position_y,
-                  CROSS_HEIGHT,
-                  CROSS_WIDTH) ) {
+                  cursor->position_x,
+                  cursor->position_y,
+                  CURSOR_HEIGHT,
+                  CURSOR_WIDTH) ) {
         button->hover = true;
     } else {
         button->hover = false;
     }
-
 }
 
 int game_wave() {
@@ -83,8 +69,6 @@ bool is_game_over() {
 void start_game() {
     game_model.current_zombie_index = 0;
     game_model.current_bullet_index = 0;
-    game_model.zombie_timer = 0;
-    game_model.player_timer = 0;
     game_model.game.wave = GAME_START_WAVE;
     game_model.game.over = GAME_START_OVER;
     player_spawn(&game_model.player);
@@ -105,8 +89,7 @@ void player_spawn(struct Player *player) {
     player->position_x = PLAYER_START_X;
     player->position_y = PLAYER_START_Y;
     player->health = PLAYER_START_HEALTH;
-    player->speed = PLAYER_START_SPEED;
-    player->max_speed = PLAYER_START_MAX_SPEED;
+    player->moving = PLAYER_START_MOVING;
     player->magazine = PLAYER_START_MAGAZINE;
     player->max_ammo = PLAYER_START_MAX_AMMO;
     player->ammo = PLAYER_START_MAX_AMMO;
@@ -126,8 +109,7 @@ void zombie_spawn(struct Zombie *zombie) {
         zombie->position_y = random(0,400);
     }
     zombie->health = ZOMBIE_START_HEALTH;
-    zombie->speed = ZOMBIE_START_SPEED;
-    zombie->max_speed = ZOMBIE_START_MAX_SPEED;
+    zombie->moving = ZOMBIE_START_MOVING;
     zombie->strength = ZOMBIE_START_STRENGTH;
     zombie->direction = ZOMBIE_START_DIRECTION;
     zombie->step = ZOMBIE_START_STEP;
@@ -135,7 +117,7 @@ void zombie_spawn(struct Zombie *zombie) {
 
 void player_update_postion() {
     struct Player *player = &game_model.player;
-    if (player->speed > 0 && player->health > 0) {
+    if (player->moving && player->health > 0) {
         switch ( player->move_direction ) {
         case MOVE_W:
             player->position_x--;
@@ -150,25 +132,25 @@ void player_update_postion() {
             player->position_y++;
             break;
         }
-        if(player->position_x < 0) {
-            player->position_x = 0;
+        if(player->position_x < 0-PLAYER_WIDTH) {
+            player->position_x = 0-PLAYER_WIDTH;
         }
         if(player->position_y < 0) {
             player->position_y = 0;
         }
-        if(player->position_x > 640) {
-            player->position_x = 640;
+        if(player->position_x > SCREEN_WIDTH-PLAYER_WIDTH) {
+            player->position_x = SCREEN_WIDTH-PLAYER_WIDTH;
         }
-        if(player->position_y > 400) {
-            player->position_y = 400;
+        if(player->position_y > SCREEN_HEIGHT-PLAYER_HEIGHT) {
+            player->position_y = SCREEN_HEIGHT-PLAYER_HEIGHT;
         }
     }
 }
 void player_set_aim_direction() {
     struct Player *player = &game_model.player;
-    struct Cross *cross = &game_model.cross;
-    int delta_x = cross->position_x - player->position_x;
-    int delta_y = player->position_y - cross->position_y;
+    struct Cursor *cursor = &game_model.cursor;
+    int delta_x = cursor->position_x - player->position_x;
+    int delta_y = player->position_y - cursor->position_y;
     int direction = LOOK_E;
 
     bool steep = abs(delta_y) > abs(delta_x * 2);
@@ -207,11 +189,10 @@ void player_set_move_direction(int direction) {
     player->move_direction = direction;
 }
 
-void player_set_speed(int speed) {
+void player_set_moving(bool moving) {
     struct Player *player = &game_model.player;
-    if( speed <= player->max_speed ) {
-        player->speed = speed;
-    }
+    player->moving = moving;
+
 }
 
 void player_take_damage(int damage) {
@@ -246,7 +227,7 @@ void player_max_ammo() {
 
 void player_set_step() {
     struct Player *player = &game_model.player;
-    if(player->speed > 0) {
+    if(player->moving) {
         if(player->step == PLAYER_TOTAL_STEPS - 1) {
             player->step = 0;
         } else {
@@ -268,14 +249,12 @@ bool player_alive() {
 }
 
 
-void zombie_set_speed(struct Zombie *zombie, int speed){
-    if(speed <= zombie->max_speed){
-      zombie->speed = speed;
-    }
+void zombie_set_moving(struct Zombie *zombie, bool moving){
+    zombie->moving = moving;
 }
 
 void zombie_update_position(struct Zombie *zombie) {
-    if (zombie->speed > 0) {
+    if (zombie->moving) {
         switch ( zombie->direction ) {
         case Z_MOVE_W:
             zombie->position_x = zombie->position_x - 1;
@@ -307,14 +286,11 @@ void zombie_take_damage(struct Zombie * zombie, int damage ){
 void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
     int delta_x = player->position_x - zombie->position_x;
     int delta_y = zombie->position_y - player->position_y;
-    int direction = LOOK_E;
+    int direction = Z_MOVE_S;
 
     bool steep = abs(delta_y) > abs(delta_x * 2);
-    bool shallow = abs(delta_x) > abs(delta_y * 2);
     bool upwards = delta_y > 0;
     bool right = delta_x > 0;
-    bool dy_gt_0 = delta_y > 0;
-    bool dx_gt_0 = delta_x > 0;
     if(player->health > 0) {
         if ( steep ) {
             if (upwards)
@@ -337,7 +313,7 @@ void zombie_set_direction(struct Zombie * zombie, struct Player *player) {
 }
 
 void zombie_set_step(struct Zombie *zombie) {
-    if(zombie->speed > 0) {
+    if(zombie->moving) {
         if(zombie->step == ZOMBIE_TOTAL_STEPS - 1) {
             zombie->step = 0;
         } else {
@@ -352,16 +328,18 @@ bool zombie_alive(struct Zombie *zombie) {
     return zombie->health > 0;
 }
 
-void cross_set_position(struct Cross *cross, int x, int y) {
-    cross->position_x = x;
-    cross->position_y = y;
+void cursor_set_position(struct Cursor *cursor, int x, int y) {
+    cursor->position_x = x;
+    cursor->position_y = y;
 }
 
 bool bullet_hit(struct Bullet *bullet) {
     return bullet->hit;
 }
-void bullet_shoot(struct Bullet *bullet, struct Player *player) {
+bool bullet_shoot(struct Bullet *bullet, struct Player *player) {
+    bool shot = false;
     if(player->magazine > 0 ) {
+        shot = true;
         bullet->position_x =
             player->position_x
             + bullet_shooting_pos[player->aim_direction][0];
@@ -372,39 +350,44 @@ void bullet_shoot(struct Bullet *bullet, struct Player *player) {
         bullet->hit = false;
         player->magazine = player->magazine - 1;
     }
+    return shot;
 }
 void bullet_update_position(struct Bullet *bullet) {
     switch ( bullet->direction ) {
     case LOOK_N:
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_y = bullet->position_y - 3;
         break;
     case LOOK_NW:
-        bullet->position_x = bullet->position_x - 1;
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_x = bullet->position_x - 3;
+        bullet->position_y = bullet->position_y - 3;
         break;
     case LOOK_W:
-        bullet->position_x = bullet->position_x - 1;
+        bullet->position_x = bullet->position_x - 3;
         break;
     case LOOK_SW:
-        bullet->position_x = bullet->position_x - 1;
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_x = bullet->position_x - 3;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_S:
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_SE:
-        bullet->position_x = bullet->position_x + 1;
-        bullet->position_y = bullet->position_y + 1;
+        bullet->position_x = bullet->position_x + 3;
+        bullet->position_y = bullet->position_y + 3;
         break;
     case LOOK_E:
-        bullet->position_x = bullet->position_x + 1;
+        bullet->position_x = bullet->position_x + 3;
         break;
     case LOOK_NE:
-        bullet->position_x = bullet->position_x + 1;
-        bullet->position_y = bullet->position_y - 1;
+        bullet->position_x = bullet->position_x + 3;
+        bullet->position_y = bullet->position_y - 3;
         break;
     }
-    bullet->hit = bullet->hit || bullet->position_y < 0 || bullet->position_x < 0;
+    bullet->hit = bullet->hit ||
+        bullet->position_y < 0 ||
+        bullet->position_x < 0 ||
+        bullet->position_x > SCREEN_WIDTH ||
+        bullet->position_y > SCREEN_HEIGHT;
 }
 
 void detect_collisions() {

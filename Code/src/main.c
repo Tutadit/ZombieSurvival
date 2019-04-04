@@ -1,82 +1,42 @@
 #include <osbind.h>
 #include "global.h"
+#include "zs_math.h"
+#include "zombie_b.h"
+#include "player_b.h"
+#include "misc_b.h"
 #include "raster.h"
 #include "model.h"
 #include "renderer.h"
-#include "zombie_b.h"
-#include "player_b.h"
-#include "t_render.h"
-#include "misc_b.h"
 #include "input.h"
 #include "music.h"
 #include "effects.h"
-#include "zs_math.h"
+#include "setup.h"
 #include "main.h"
 
-volatile UINT8 * const MFP_PDR_P = MFP_PDR_ADR;
-volatile UINT8 * const MFP_AER_P = MFP_AER_ADR;
-volatile UINT8 * const MFP_DIR_P = MFP_DIR_ADR;
-volatile UINT8 * const MFP_IEA_P = MFP_IEA_ADR;
-volatile UINT8 * const MFP_IEB_P = MFP_IEB_ADR;
-volatile UINT8 * const MFP_IPA_P = MFP_IPA_ADR;
-volatile UINT8 * const MFP_IPB_P = MFP_IPB_ADR;
-volatile UINT8 * const MFP_ISA_P = MFP_ISA_ADR;
-volatile UINT8 * const MFP_ISB_P = MFP_ISB_ADR;
-volatile UINT8 * const MFP_IMA_P = MFP_IMA_ADR;
-volatile UINT8 * const MFP_IMB_P = MFP_IMB_ADR;
-volatile UINT8 * const MFP_VCR_P = MFP_VCR_ADR;
-volatile UINT8 * const MFP_TAC_P = MFP_TAC_ADR;
-volatile UINT8 * const MFP_TBC_P = MFP_TBC_ADR;
-volatile UINT8 * const MFP_TDC_P = MFP_TDC_ADR;
-volatile UINT8 * const MFP_TAD_P = MFP_TAD_ADR;
-volatile UINT8 * const MFP_TBD_P = MFP_TBD_ADR;
-volatile UINT8 * const MFP_TCD_P = MFP_TCD_ADR;
-volatile UINT8 * const MFP_TDD_P = MFP_TDD_ADR;
-volatile UINT8 * const MFP_SYC_P = MFP_SYC_ADR;
-volatile UINT8 * const MFP_UCR_P = MFP_UCR_ADR;
-volatile UINT8 * const MFP_RES_P = MFP_RES_ADR;
-volatile UINT8 * const MFP_TRS_P = MFP_TRS_ADR;
-volatile UINT8 * const MFP_UAD_P = MFP_UAD_ADR;
+
+int player_timer = 0;
+int zombie_timer = 0;
+int bullet_timer = 0;
+
+bool render_request = false;
 
 UINT32 *back_buffer = 0;
 UINT32 *tmp = 0;
 UINT8 buffer_space[BUFFER_SPACE] = {0};
-bool render_request = false;
 
 int main() {
-    UINT32 timeThen,
-        timeNow,
-        timeElapsed;
-    int offset;
-    char choice = 'm';
-    struct MainMenu menu;
-
-    set_video_base((UINT32 *)VIDEO_BASE);
-    set_up_mfp();
-    install_isrs();
-    random_init();
-    disable_midi();
-    enable_ikbd_irq();
-    start_music();
-    back_buffer = (UINT32 *) buffer_space;
-    offset = (int) ( (UINT32) buffer_space % 256 );
-    if ( offset !=0 ) {
-       back_buffer += 256 - offset;
-    }
-
-    menu = generate_main_menu();
-
-    while ( choice != 'q' ) {
-        update_music();
+    initital_setup();
+    while ( true ) {
         if ( render_request ) {
+            update_music();
+            handle_input();
             clear_screen(back_buffer);
             if (is_game_over()) {
-                main_menu(&menu);
+                main_menu();
             } else {
                 game();
             }
-            cross_set_position(&game_model.cross,cursor_x(),cursor_y());
-            render_cross(&game_model.cross,back_buffer);
+            update_cursor();
             tmp = get_video_base();
             set_video_base(back_buffer);
             back_buffer = tmp;
@@ -86,74 +46,86 @@ int main() {
     return 0;
 }
 
-void set_up_mfp() {
-    long old_ssp = Super(0);
-    *MFP_PDR_P = MFP_PDR_DEF;
-    *MFP_AER_P = MFP_AER_DEF;
-    *MFP_DIR_P = MFP_DIR_DEF;
-    *MFP_IEA_P = MFP_IEA_DEF;
-    *MFP_IEB_P = MFP_IEB_DEF;
-    *MFP_IPA_P = MFP_IPA_DEF;
-    *MFP_IPB_P = MFP_IPB_DEF;
-    *MFP_ISA_P = MFP_ISA_DEF;
-    *MFP_ISB_P = MFP_ISB_DEF;
-    *MFP_IMA_P = MFP_IMA_DEF;
-    *MFP_IMB_P = MFP_IMB_DEF;
-    *MFP_VCR_P = MFP_VCR_DEF;
-    *MFP_TAC_P = MFP_TAC_DEF;
-    *MFP_TBC_P = MFP_TBC_DEF;
-
-    *MFP_TAD_P = MFP_TAD_DEF;
-    *MFP_TBD_P = MFP_TBD_DEF;
-    *MFP_TCD_P = MFP_TCD_DEF;
-
-    *MFP_TDD_P = MFP_TDD_DEF;
-    *MFP_SYC_P = MFP_SYC_DEF;
-    *MFP_UCR_P = MFP_UCR_DEF;
-    *MFP_RES_P = MFP_RES_DEF;
-    *MFP_TRS_P = MFP_TRS_DEF;
-    *MFP_UAD_P = MFP_UAD_DEF;
-    Super(old_ssp);
+void handle_input() {
+    handle_mouse_input();
+    handle_keyboard_input();
 }
 
-void enable_ikbd_irq() {
-    long old_ssp = Super(0);
-    *IKBD_control = IKBD_CTL_DEF;
-    set_ipl(0);
-    Super(old_ssp);
+void update_cursor() {
+    cursor_set_position(&game_model.cursor,cursor_x(),cursor_y());
+    render_cursor(&game_model.cursor,back_buffer);
 }
 
-void install_isrs() {
-    install_vector(VECTOR_VBL, vbl_isr);
-    install_vector(VECTOR_HBL, hbl_isr);
-    install_vector(VECTOR_KBD, kbd_isr);
+void initital_setup() {
+    int offset;
+    set_video_base((UINT32 *)VIDEO_BASE);
+    set_up_mfp();
+    install_isrs();
+    random_init();
+    disable_midi();
+    enable_ikbd_irq();
+    start_music();
+    back_buffer = (UINT32 *) buffer_space;
+    offset = (int) ( (UINT32) buffer_space & 0xFF );
+    if ( offset !=0 ) {
+        back_buffer += ( 256 - offset );
+    }
+    spawn_button(&game_model.survive,
+                 SURVIVE_A,
+                 SURVIVE_B,
+                 MM_SURVIVE_X,
+                 MM_SURVIVE_Y);
+}
+
+void reset_timer(int *timer) {
+    long old_ssp = Super(0);
+    int old_mask = set_ipl(6);
+    *timer = 0;
+    set_ipl(old_mask);
+    Super(old_ssp);
 }
 
 void game() {
+
+    if ( zombie_timer  >= ZOMBIE_UPDATE_FREQUENCY ) {
+        update_zombies_timed();
+        reset_timer(&zombie_timer);
+    }
+
+    if ( player_timer  >= PLAYER_UPDATE_FREQUENCY ) {
+        update_player_timed();
+        reset_timer(&player_timer);
+    }
+
+    if ( update_player() ){
+        game_over();
+    }
+
+    detect_collisions();
+    render_game();
+}
+
+void handle_mouse_input() {
     if ( mouse_left_status() ) {
-        if (!m_left_pressed) {
-            shoot();
-            m_left_pressed = true;
+        if ( is_game_over() ) {
+            if (button_hover(&game_model.survive)) {
+                start_game();
+            }
+        } else {
+            if (!m_left_pressed) {
+                shoot();
+                m_left_pressed = true;
+            }
         }
     } else {
         m_left_pressed = false;
     }
-    if ( update_player() ){
-        game_over();
-    }
-    detect_collisions();
-    render_game(back_buffer);
+
 }
 
-void main_menu(struct MainMenu *menu) {
-    if ( mouse_left_status() ) {
-        if (button_hover(&menu->survive)) {
-            start_game();
-        }
-    }
-    button_cross_collision(&menu->survive, &game_model.cross);
-
-    render_button(&menu->survive, back_buffer);
+void main_menu() {
+    button_cursor_collision(&game_model.survive, &game_model.cursor);
+    render_button(&game_model.survive, back_buffer);
 }
 
 bool update_zombies() {
@@ -171,7 +143,7 @@ bool update_zombies() {
     return all_dead;
 }
 
-bool update_player() {
+void handle_keyboard_input() {
     SCANCODE key;
     if( keys_to_read()) {
         key = sb_pop();
@@ -208,14 +180,15 @@ bool update_player() {
             d_down = false;
             break;
         default:
-
             break;
         }
     }
+}
+bool update_player() {
     if ( w_down || a_down || s_down || d_down ) {
-        player_set_speed(1);
+        player_set_moving(true);
     } else {
-        player_set_speed(0);
+        player_set_moving(false);
     }
     player_set_step();
     player_set_aim_direction();
@@ -235,28 +208,31 @@ void update_zombies_timed() {
 }
 
 void shoot() {
-    bullet_shoot(&game_model.bullets[game_model.current_bullet_index],
-                 &game_model.player);
-    game_model.current_bullet_index++;
+    if ( bullet_shoot(&game_model.bullets[game_model.current_bullet_index],
+                      &game_model.player)) {
+        game_model.current_bullet_index++;
+        play_shoot();
+    } else {
+        play_empty();
+    }
     if ( game_model.current_bullet_index == ABSOLUTE_MAX_BULLETS ) {
         game_model.current_bullet_index = 0;
     }
-    play_shoot();
 }
 
-void render_game(UINT32 *base) {
-    render_player(&game_model.player,base);
-    render_stats(&game_model.player,&game_model.game,base);
-    render_zombies(base);
-    render_bullets(base);
+void render_game() {
+    render_player(&game_model.player,back_buffer);
+    render_stats(&game_model.player,&game_model.game,back_buffer);
+    render_zombies(back_buffer);
+    render_bullets(back_buffer);
 }
 
-void render_zombies(UINT32 *base) {
+void render_zombies() {
     int i;
     for (i = 0; i < game_model.current_zombie_index; i++) {
 
         if(zombie_alive(&game_model.zombies[i])) {
-            render_zombie(&game_model.zombies[i],base);
+            render_zombie(&game_model.zombies[i],back_buffer);
         }
     }
 
@@ -270,41 +246,24 @@ void update_bullets() {
         }
     }
 }
-void render_bullets(UINT32 *base) {
+void render_bullets() {
     int i;
     for(i = 0; i < game_model.current_bullet_index; i++ ) {
         if(!bullet_hit(&game_model.bullets[i])) {
             if ( !bullet_hit(&game_model.bullets[i]) ) {
-                render_bullet(&game_model.bullets[i],base);
+                render_bullet(&game_model.bullets[i],back_buffer);
             }
         }
     }
 
 }
 
-void install_vector(int num, Vector vector) {
-    Vector *vectp = (Vector *)((long)num << 2);
-    long old_ssp = Super(0);
-    *vectp = vector;
-    Super(old_ssp);
-}
-
 void do_vbl_isr() {
     tempo++;
+    volume_down++;
+    player_timer++;
+    zombie_timer++;
     update_bullets();
     random_update();
-    if(!is_game_over()) {
-        game_model.player_timer++;
-        if ( game_model.player_timer  > 1 ) {
-            update_player_timed();
-            game_model.player_timer = 0;
-        }
-    }
-
-    game_model.zombie_timer++;
-    if ( game_model.zombie_timer  > 15 ) {
-        update_zombies_timed();
-        game_model.zombie_timer = 0;
-    }
     render_request = true;
 }

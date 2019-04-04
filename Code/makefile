@@ -9,18 +9,6 @@ TEST_SRCDIR=test
 BUILDDIR=build
 TEST_BUILDDIR=build\test
 
-OBJECTS=$(BUILDDIR)\start.o 	$(BUILDDIR)\init.o   	$(BUILDDIR)\vbl_isr.o 	\
-		$(BUILDDIR)\kbd_isr.o 	$(BUILDDIR)\clear.o 	$(BUILDDIR)\ints.o 		\
-		$(BUILDDIR)\player_b.o 	$(BUILDDIR)\zombie_b.o 	$(BUILDDIR)\misc_b.o 	\
-		$(BUILDDIR)\renderer.o 	$(BUILDDIR)\effects.o  	$(BUILDDIR)\zs_math.o 	\
-		$(BUILDDIR)\raster.o   	$(BUILDDIR)\music.o 	$(BUILDDIR)\model.o 	\
-		$(BUILDDIR)\input.o 	$(BUILDDIR)\font.o 		$(BUILDDIR)\psg.o 		\
-		$(BUILDDIR)\main.o
-
-TEST_OBJECTS=	$(OBJECTS) \
-				$(TEST_BUILDDIR)\t_raster.o	$(TEST_BUILDDIR)\t_player.o \
-			 	$(TEST_BUILDDIR)\t_render.o	$(TEST_BUILDDIR)\t_runner.o
-
 CC=cc68x
 ASM=gen
 LINKER=ld
@@ -29,15 +17,20 @@ ASMFLAGS=-L2
 CFLAGS=-W3
 INC=-Iinclude
 
+OBJECTS=$(BUILDDIR)\start.o 	$(BUILDDIR)\init.o   	$(BUILDDIR)\vbl_isr.o 	\
+		$(BUILDDIR)\kbd_isr.o 	$(BUILDDIR)\clear.o 	$(BUILDDIR)\ints.o 		\
+		$(BUILDDIR)\player_b.o 	$(BUILDDIR)\zombie_b.o 	$(BUILDDIR)\misc_b.o 	\
+		$(BUILDDIR)\renderer.o 	$(BUILDDIR)\effects.o  	$(BUILDDIR)\zs_math.o 	\
+		$(BUILDDIR)\raster.o   	$(BUILDDIR)\music.o 	$(BUILDDIR)\model.o 	\
+		$(BUILDDIR)\input.o 	$(BUILDDIR)\font.o 		$(BUILDDIR)\psg.o 		\
+		$(BUILDDIR)\setup.o		$(BUILDDIR)\main.o
+
 $(OS_IMG): $(TARGET)
 	burnroms
 
 $(TARGET): $(OBJECTS)
 	@%echo linking...
 	@$(LINKER) -o $@ $(OBJECTS)
-
-other: $(OBJECTS)
-	@$(CC) $(OBJECTS) -o game
 
 $(BUILDDIR)\clear.o: $(SRCDIR)\clear.s
 	@%echo $(ASM) $<
@@ -111,6 +104,10 @@ $(BUILDDIR)\init.o: $(SRCDIR)\init.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
+$(BUILDDIR)\setup.o: $(SRCDIR)\setup.c
+	@%echo $(CC) $<
+	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
+
 $(BUILDDIR)\main.o: $(SRCDIR)\main.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
@@ -119,30 +116,8 @@ test: $(TEST_TARGET)
 	@echo Running tests...
 	@bin/test
 
-$(TEST_TARGET): $(TEST_OBJECTS)
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) $(TEST_OBJECTS) $(MATH_LIB) -o $@
-
-$(TEST_BUILDDIR)\t_raster.o: $(TEST_SRCDIR)\t_raster.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(TEST_BUILDDIR)\t_player.o: $(TEST_SRCDIR)\t_player.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(TEST_BUILDDIR)\t_render.o: $(TEST_SRCDIR)\t_render.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
-$(TEST_BUILDDIR)\t_runner.o: $(TEST_SRCDIR)\t_runner.c
-	@%echo $(CC) $<
-	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
-
 all: clean $(OS_IMG)
 clean:
 	@%echo Cleaning...
-	@%Rm bin\*
+	@%Rm $(BUILDDIR)\*
 	@%Rm os.img os.prg
-	@%Rm build\*.o
-	@%Rm build\test\*.o

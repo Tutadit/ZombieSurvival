@@ -72,12 +72,12 @@ void render_zombie(const struct Zombie *zombie, UINT32 *base) {
     }
 }
 
-void render_cross(const struct Cross *cross, UINT32 *base) {
+void render_cursor(const struct Cursor *cursor, UINT32 *base) {
     plot_bitmap_8((UINT8 *)base,
-                  cross->position_x - 1,
-                  cross->position_y + 1,
-                  CROSS,
-                  CROSS_HEIGHT);
+                  cursor->position_x - 1,
+                  cursor->position_y + 1,
+                  CURSOR,
+                  CURSOR_HEIGHT);
 }
 
 void render_bullet(const struct Bullet *bullet, UINT32 *base) {

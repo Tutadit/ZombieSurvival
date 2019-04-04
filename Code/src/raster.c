@@ -9,6 +9,7 @@
 #define VIDEO_BASE_MI 0xFF8203
 
 
+
 UINT32 *get_video_base() {
     UINT32 base;
     UINT8 *base_lo;
