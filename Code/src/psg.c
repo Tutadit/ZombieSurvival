@@ -1,7 +1,6 @@
 #include <osbind.h>
 #include "global.h"
 #include "psg.h"
-
 volatile  UINT8 * const PSG_SEL_P = PSG_SEL_ADR;
 volatile  UINT8 * const PSG_DAT_P = PSG_DAT_ADR;
 

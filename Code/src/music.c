@@ -52,4 +52,6 @@ void update_music() {
         set_tone(CHANNEL_A,song[note]);
         reset_timer(&tempo);
     }
+
+    set_tone(CHANNEL_A,song[note]);
 }
