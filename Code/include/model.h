@@ -149,97 +149,138 @@ bool button_hover(struct Button *button);
  */
 void button_cursor_collision(struct Button *button, struct Cursor *cursor);
 /*
- *
+ * Starts the game_model with all of the default values.
  */
 void start_game();
 /*
- *
+ * Returns the current wave number
  */
 int game_wave();
 /*
- *
+ * Sets the next wave
  */
 void game_next_wave();
 /*
- *
+ * Ends the game, by setting its game over flag to true.
  */
 void game_over();
 /*
- *
+ * Returns true if the game is over, false otherwise.
  */
 bool is_game_over();
 /*
- *
+ * Spawn player with default values
+ * Note: start_game() Calls this function.
  */
 void player_spawn(struct Player *player);
 /*
- *
+ * Spawns a single zombie.
+ * Note: start_game() Calls this function
  */
 void zombie_spawn(struct Zombie *zombie);
 /*
- *
+ * Spawns all zombies in the game_model.
+ * Called by start_game()
  */
 void spawn_zombies();
 /*
- *
+ * Update the players position by 1 unit.
  */
 void player_update_postion();
 /*
- *
+ * Set the players aim direction.
+ * For smooth playtime this should be called
+ * every frame. Or every time the mouse has
+ * moved.
  */
 void player_set_aim_direction();
 /*
- *
+ * Set the move direction of the player.
+ * player_b.h provides constants for direction.
  */
 void player_set_move_direction(int direction);
 /*
- *
+ * If the player is moving this rotates between
+ * steps of the player. Otherwise it just stays
+ * stationary. For smooth playtime call frequently.
  */
 void player_set_step();
 /*
- *
+ * Set the moving flag of the player
  */
 void player_set_moving(bool moving);
 /*
- *
+ * Take a hit of health with the provided
+ * damage.
  */
 void player_take_damage(int damage);
 /*
- *
+ * Reload players gun with players ammo.
  */
 void player_reload();
 /*
- *
+ * Fill up players ammo to capaciy
  */
 void player_max_ammo();
 /*
- *
+ * Add 1 to players score. Should be called
+ * every time player kills a zombie.
  */
 void player_score();
 /*
- *
+ * Returns true if the player is alive.
  */
 bool player_alive();
 /*
- *
+ * Update the zombie position by 1 in the direction
+ * the zombie is facing.
  */
 void zombie_update_position(struct Zombie *zombie);
 /*
- *
+ * Set the moving flag of the zombie
  */
 void zombie_set_moving(struct Zombie *zombie, bool moving);
 /*
- *
+ * Set the stringth of the zombie
  */
 void zombie_set_strength(struct Zombie *zombie, int strength);
+/*
+ * Take damage
+ */
 void zombie_take_damage(struct Zombie * zombie, int damage );
+/*
+ * Set the direction based on the position of the
+ * player
+ */
 void zombie_set_direction(struct Zombie * zombie, struct Player *player);
+/*
+ * Returns true if the zombie is alive
+ */
 bool zombie_alive(struct Zombie *zombie);
+/*
+ * As like player but with a zombie.
+ */
 void zombie_set_step(struct Zombie *zombie);
-
+/*
+ * Returns true if the bullet's hit flag is set
+ * false otherwise.
+ */
 bool bullet_hit(struct Bullet *bullet);
+/*
+ * Shoot a bullet based on the position and aim direction
+ * of the player
+ */
 bool bullet_shoot(struct Bullet *bullet, struct Player *player);
+/*
+ * Update the position of the bullet
+ */
 void bullet_update_position(struct Bullet *bullet);
+/*
+ * Set the position of the cursor.
+ */
 void cursor_set_position(struct Cursor *cursor, int x, int y);
+/*
+ * Detect any collisions and take action if collisions occur.
+ */
 void detect_collisions();
 #endif

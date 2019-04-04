@@ -22,7 +22,7 @@ UINT8 read_psg(int reg) {
     return data;
 }
 
-void set_tone(int channel, int tuning) {
+void set_tone(int channel, UINT tuning) {
     UINT8 fine_tone = (UINT8) tuning;
     UINT8 rough_tone = (tuning >> 8);
     switch(channel) {

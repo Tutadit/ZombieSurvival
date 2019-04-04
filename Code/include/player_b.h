@@ -1,3 +1,17 @@
+/*
+ * Player bitmap.
+ *
+ * A player consists of two 32-bit bitmaps joined together
+ * one on top of the other.
+ *
+ * The Upper Body:
+ *     The upper body can be looking North, NorthEest, East,
+ *     Southeast, South, Southwest or West.
+ * The Lower body:
+ *     The lower body can be looking North, East, West, South
+ *     and can step left, right or be stopped.
+ *
+ */
 #ifndef PLAYER_ZS
 #define PLAYER_ZS
 

@@ -1,3 +1,7 @@
+/*
+ * Start setup for the 'custom OS' that is this
+ * game
+ */
 #ifndef SETUP_ZS
 #define SETUP_ZS
 #include "global.h"
@@ -80,10 +84,28 @@ extern volatile UINT8 * const MFP_TRS_P;
 extern volatile UINT8 * const MFP_UAD_P;
 
 typedef void (*Vector)();
-
+/*
+ * Instals the following isrs in their respective
+ * vecor #:
+ *     VBL ISR
+ *     HBL ISR
+ *     KBD ISR
+ */
 void install_isrs();
+/*
+ * Helper methos to install a vector function
+ * into their respective vector #
+ */
 void install_vector(int num, Vector vector);
+/*
+ * Set up the MFP with the default values
+ * needed for runtime.
+ */
 void set_up_mfp();
+/*
+ * Enables the interupt request of the
+ * IKBD as well as sets the IPL to 0.
+ */
 void enable_ikbd_irq();
 
 
