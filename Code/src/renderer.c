@@ -46,13 +46,13 @@ void render_player(const struct Player *player, UINT32 *base) {
         plot_bitmap_32(base,
                        player->position_x,
                        player->position_y,
-                       PLAYER_BODY[player->aim_direction],
-                       PLAYER_BODY_HEIGHT);
+                       PLAYER_UPPER_BODY[player->aim_direction],
+                       PLAYER_UPPER_BODY_HEIGHT);
         plot_bitmap_32(base,
                        player->position_x,
-                       player->position_y+PLAYER_BODY_HEIGHT,
+                       player->position_y+PLAYER_UPPER_BODY_HEIGHT,
                        PLAYER_STEP[player->move_direction][player->step],
-                       PLAYER_LEGS_HEIGHT);
+                       PLAYER_LOWER_BODY_HEIGHT);
     } else {
         plot_bitmap_32(base,
                        player->position_x,

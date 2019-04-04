@@ -13,7 +13,7 @@ const UINT32 PLAYER_DEAD[10] = {
                                0x13810000,
                                0x1efffc00
 };
-const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_WEST[PLAYER_UPPER_BODY_HEIGHT] = {
                              0x38000,
                              0x28000,
                              0x28000,
@@ -30,7 +30,7 @@ const UINT32 PLAYER_BODY_WEST[PLAYER_BODY_HEIGHT] = {
                              0x28000
                              };
 
-const UINT32 PLAYER_BODY_EAST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_EAST[PLAYER_UPPER_BODY_HEIGHT] = {
                               0x38000,
                               0x28000,
                               0x28000,
@@ -47,7 +47,7 @@ const UINT32 PLAYER_BODY_EAST[PLAYER_BODY_HEIGHT] = {
                               0x28000
 };
 
-const UINT32 PLAYER_BODY_SOUTH[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_SOUTH[PLAYER_UPPER_BODY_HEIGHT] = {
                              0x38000,
                              0x28000,
                              0x28000,
@@ -64,7 +64,7 @@ const UINT32 PLAYER_BODY_SOUTH[PLAYER_BODY_HEIGHT] = {
                              0x28000
 };
 
-const UINT32 PLAYER_BODY_NORTH[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_NORTH[PLAYER_UPPER_BODY_HEIGHT] = {
                            0x38000,
                            0x28000,
                            0x28000,
@@ -81,7 +81,7 @@ const UINT32 PLAYER_BODY_NORTH[PLAYER_BODY_HEIGHT] = {
                            0x28000
 };
 
-const UINT32 PLAYER_BODY_NORTHWEST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_NORTHWEST[PLAYER_UPPER_BODY_HEIGHT] = {
                                0x38000,
                                0x28000,
                                0x428000,
@@ -98,7 +98,7 @@ const UINT32 PLAYER_BODY_NORTHWEST[PLAYER_BODY_HEIGHT] = {
                                0x28000
 };
 
-const UINT32 PLAYER_BODY_NORTHEAST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_NORTHEAST[PLAYER_UPPER_BODY_HEIGHT] = {
                                 0x38000,
                                 0x28000,
                                 0x28400,
@@ -115,7 +115,7 @@ const UINT32 PLAYER_BODY_NORTHEAST[PLAYER_BODY_HEIGHT] = {
                                 0x28000
 };
 
-const UINT32 PLAYER_BODY_SOUTHEAST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_SOUTHEAST[PLAYER_UPPER_BODY_HEIGHT] = {
                                   0x38000,
                                   0x28000,
                                   0x28000,
@@ -132,7 +132,7 @@ const UINT32 PLAYER_BODY_SOUTHEAST[PLAYER_BODY_HEIGHT] = {
                                   0x29000
 };
 
-const UINT32 PLAYER_BODY_SOUTHWEST[PLAYER_BODY_HEIGHT] = {
+const UINT32 PLAYER_UPPER_BODY_SOUTHWEST[PLAYER_UPPER_BODY_HEIGHT] = {
                                  0x38000,
                                  0x28000,
                                  0x28000,
@@ -148,42 +148,42 @@ const UINT32 PLAYER_BODY_SOUTHWEST[PLAYER_BODY_HEIGHT] = {
                                  0xfc000,
                                  0x128000
 };
-const UINT32 PLAYER_EAST_STEP_ONE[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_EAST_STEP_ONE[PLAYER_LOWER_BODY_HEIGHT] = {
                                 0x2c000,
                                 0x24000,
                                 0x24000,
                                 0x26000,
                                 0x30000
 };
-const UINT32 PLAYER_EAST_STOP[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_EAST_STOP[PLAYER_LOWER_BODY_HEIGHT] = {
                                   0x28000,
                                   0x28000,
                                   0x28000,
                                   0x28000,
                                   0x3c000
 };
-const UINT32 PLAYER_EAST_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_EAST_STEP_TWO[PLAYER_LOWER_BODY_HEIGHT] = {
                                     0x38000,
                                     0x18000,
                                     0x18000,
                                     0x18000,
                                     0xc000
 };
-const UINT32 PLAYER_WEST_STEP_ONE[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_WEST_STEP_ONE[PLAYER_LOWER_BODY_HEIGHT] = {
                                  0x68000,
                                  0x48000,
                                  0x48000,
                                  0xc8000,
                                  0x18000
 };
-const UINT32 PLAYER_WEST_STOP[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_WEST_STOP[PLAYER_LOWER_BODY_HEIGHT] = {
                                  0x28000,
                                  0x28000,
                                  0x28000,
                                  0x28000,
                                  0x78000
 };
-const UINT32 PLAYER_WEST_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_WEST_STEP_TWO[PLAYER_LOWER_BODY_HEIGHT] = {
                                    0x38000,
                                    0x30000,
                                    0x30000,
@@ -191,7 +191,7 @@ const UINT32 PLAYER_WEST_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
                                    0x60000
 };
 
-const UINT32 PLAYER_NORTH_STEP_ONE[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_NORTH_STEP_ONE[PLAYER_LOWER_BODY_HEIGHT] = {
                                                           0x28000,
                                                           0x28000,
                                                           0x28000,
@@ -199,7 +199,7 @@ const UINT32 PLAYER_NORTH_STEP_ONE[PLAYER_LEGS_HEIGHT] = {
                                                           0x8000
 };
 
-const UINT32 PLAYER_NORTH_STOP[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_NORTH_STOP[PLAYER_LOWER_BODY_HEIGHT] = {
                              0x28000,
                              0x28000,
                              0x28000,
@@ -207,7 +207,7 @@ const UINT32 PLAYER_NORTH_STOP[PLAYER_LEGS_HEIGHT] = {
                              0x28000
 };
 
-const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
+const UINT32 PLAYER_LOWER_BODY_NORTH_STEP_TWO[PLAYER_LOWER_BODY_HEIGHT] = {
                                0x28000,
                                0x28000,
                                0x28000,
@@ -216,40 +216,41 @@ const UINT32 PLAYER_NORTH_STEP_TWO[PLAYER_LEGS_HEIGHT] = {
 };
 
 
-const UINT32 *PLAYER_BODY[8] = {
-                         PLAYER_BODY_NORTH,
-                         PLAYER_BODY_NORTHWEST,
-                         PLAYER_BODY_WEST,
-                         PLAYER_BODY_SOUTHWEST,
-                         PLAYER_BODY_SOUTH,
-                         PLAYER_BODY_SOUTHEAST,
-                         PLAYER_BODY_EAST,
-                         PLAYER_BODY_NORTHEAST
+const UINT32 *PLAYER_UPPER_BODY[8] = {
+                         PLAYER_UPPER_BODY_NORTH,
+                         PLAYER_UPPER_BODY_NORTHWEST,
+                         PLAYER_UPPER_BODY_WEST,
+                         PLAYER_UPPER_BODY_SOUTHWEST,
+                         PLAYER_UPPER_BODY_SOUTH,
+                         PLAYER_UPPER_BODY_SOUTHEAST,
+                         PLAYER_UPPER_BODY_EAST,
+                         PLAYER_UPPER_BODY_NORTHEAST
 };
 
 const UINT32 *PLAYER_STEP[4][PLAYER_TOTAL_STEPS] = {
                             {
-                             PLAYER_WEST_STEP_ONE,
-                             PLAYER_WEST_STOP,
-                             PLAYER_WEST_STEP_TWO,
-                             PLAYER_WEST_STOP
+
+                             PLAYER_LOWER_BODY_WEST_STEP_ONE,
+                             PLAYER_LOWER_BODY_WEST_STOP,
+                             PLAYER_LOWER_BODY_WEST_STEP_TWO,
+                             PLAYER_LOWER_BODY_WEST_STOP
                             },
                             {
-                             PLAYER_NORTH_STEP_ONE,
-                             PLAYER_NORTH_STOP,
-                             PLAYER_NORTH_STEP_TWO,
-                             PLAYER_NORTH_STOP
+                             PLAYER_LOWER_BODY_NORTH_STEP_ONE,
+                             PLAYER_LOWER_BODY_NORTH_STOP,
+                             PLAYER_LOWER_BODY_NORTH_STEP_TWO,
+                             PLAYER_LOWER_BODY_NORTH_STOP
                             },
                             {
-                             PLAYER_EAST_STEP_ONE,
-                             PLAYER_EAST_STOP,
-                             PLAYER_EAST_STEP_TWO,
-                             PLAYER_EAST_STOP
+                             PLAYER_LOWER_BODY_EAST_STEP_ONE,
+                             PLAYER_LOWER_BODY_EAST_STOP,
+                             PLAYER_LOWER_BODY_EAST_STEP_TWO,
+                             PLAYER_LOWER_BODY_EAST_STOP
                             },
                             {
-                             PLAYER_NORTH_STEP_ONE,
-                             PLAYER_NORTH_STOP,
-                             PLAYER_NORTH_STEP_TWO,
-                             PLAYER_NORTH_STOP
+                             PLAYER_LOWER_BODY_NORTH_STEP_ONE,
+                             PLAYER_LOWER_BODY_NORTH_STOP,
+                             PLAYER_LOWER_BODY_NORTH_STEP_TWO,
+                             PLAYER_LOWER_BODY_NORTH_STOP
                             }
 };
