@@ -1,3 +1,17 @@
+/*
+ * Bitmap Configuration for 'zombie'
+ * A zombie can be plotted to look North, South,
+ * East and West.
+ *
+ * It can be stopped or stepped with one leg or
+ * the other.
+ *
+ * ZOMBIE_DIRECTION_STEP is a 2D array of bitmaps arrays,
+ * the first dimension of the array is the direction and
+ * the second its the step.
+ *
+ * Global constants are declared for easy use
+ */
 #ifndef ZOMBIE_ZS
 #define ZOMBIE_ZS
 #include "global.h"

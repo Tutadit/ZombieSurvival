@@ -1,3 +1,7 @@
+/*
+ * Set of global typedefs and constants for
+ * the game.
+ */
 #ifndef GLOBAL_ZS
 #define GLOBAL_ZS
 

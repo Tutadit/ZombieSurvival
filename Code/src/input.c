@@ -105,12 +105,6 @@ void disable_midi() {
     Super(old_ssp);
 }
 
-void enable_midi() {
-    long old_ssp = Super(0);
-    *MIDI_CONTROL = BACK_TO_DEF;
-    Super(old_ssp);
-}
-
 void do_kbd_isr() {
     SCANCODE scancode;
     M_POS pos;
