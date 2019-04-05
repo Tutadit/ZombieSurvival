@@ -112,10 +112,6 @@ $(BUILDDIR)\main.o: $(SRCDIR)\main.c
 	@%echo $(CC) $<
 	@$(CC) $(CFLAGS) $(INC) -c -o $@ $<
 
-test: $(TEST_TARGET)
-	@echo Running tests...
-	@bin/test
-
 all: clean $(OS_IMG)
 clean:
 	@%echo Cleaning...
